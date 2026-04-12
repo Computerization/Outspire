@@ -124,6 +124,11 @@ struct SettingsView: View {
                         Label("Cache Status", systemImage: "externaldrive")
                             .foregroundStyle(.primary)
                     }
+
+                    NavigationLink(destination: LiveActivityDebugView()) {
+                        Label("Live Activity Test", systemImage: "clock.badge.checkmark")
+                            .foregroundStyle(.primary)
+                    }
                 }
                 .staggeredEntry(index: 3, animate: animateEntrance)
             #endif
