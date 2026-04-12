@@ -183,7 +183,14 @@ final class ClassActivityManager: ObservableObject {
             DispatchQueue.main.async {
                 guard let self else { return }
                 self.isRegistering = false
-                guard generation == self.registerGeneration else { return }
+
+                if generation != self.registerGeneration {
+                    // Tokens or timetable changed while this request was in flight —
+                    // discard this result and re-register with current values.
+                    self.registerIfReady()
+                    return
+                }
+
                 if success {
                     self.hasRegistered = true
                     self.retryCount = 0
