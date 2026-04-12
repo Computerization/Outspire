@@ -29,6 +29,7 @@ struct ViewGradientSettings: Codable {
     }
 }
 
+@MainActor
 class GradientManager: ObservableObject {
     @Published var gradientColors: [Color] = AppGradients.defaultGradient
     @Published var gradientSpeed: Double = 0.5

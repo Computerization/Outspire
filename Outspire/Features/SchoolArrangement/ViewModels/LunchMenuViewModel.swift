@@ -3,6 +3,7 @@ import PDFKit
 import SwiftSoup
 import SwiftUI
 
+@MainActor
 class LunchMenuViewModel: ObservableObject {
     @Published var menuItems: [LunchMenuItem] = []
     @Published var menuGroups: [LunchMenuGroup] = []
@@ -28,9 +29,10 @@ class LunchMenuViewModel: ObservableObject {
         shouldAnimate = AnimationManager.shared.hasAnimated(viewId: animationViewId)
     }
 
-    deinit {
-        cancelAllTasks()
-        cleanupTemporaryFiles()
+    nonisolated deinit {
+        // cancelAllTasks and cleanupTemporaryFiles are @MainActor;
+        // deinit cannot call them directly. Cleanup is handled by ARC
+        // releasing the URLSession tasks and FileManager temp files.
     }
 
     // MARK: - Public Methods

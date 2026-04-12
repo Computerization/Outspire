@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 
 /// Handles URL scheme navigation and universal links for deep linking in Outspire
+@MainActor
 class URLSchemeHandler: ObservableObject {
     static let shared = URLSchemeHandler()
 

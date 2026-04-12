@@ -1,6 +1,7 @@
 import CoreLocation
 import Foundation
 
+@MainActor
 class RegionChecker: ObservableObject {
     // Add a shared singleton instance
     static let shared = RegionChecker()

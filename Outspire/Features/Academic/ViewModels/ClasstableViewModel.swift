@@ -10,7 +10,6 @@ import SwiftUI
 /// - Automatic cache validation with timestamp checking
 /// - Background cache loading for instant UI updates
 /// - Smart cache invalidation and refresh mechanisms
-/// - Widget data sharing integration
 ///
 /// Cache Strategy:
 /// - Years data is cached for 24 hours (86400 seconds)
@@ -24,15 +23,12 @@ import SwiftUI
 /// - Minimizes network requests for frequently accessed data
 /// - Provides offline-like experience with cached data
 /// - Smooth user experience with background updates
+@MainActor
 class ClasstableViewModel: ObservableObject {
     private let timetableCacheVersion = 3
     @Published var years: [Year] = []
     @Published var selectedYearId: String = ""
-    @Published var timetable: [[String]] = [] {
-        didSet {
-            shareTimetableWithWidgets()
-        }
-    }
+    @Published var timetable: [[String]] = []
 
     @Published var errorMessage: String?
     @Published var isLoadingYears: Bool = false
@@ -123,6 +119,9 @@ class ClasstableViewModel: ObservableObject {
             UserDefaults.standard.set(timetableCacheVersion, forKey: versionKey)
             self.lastUpdateTime = Date()
             updateFormattedTimestamp()
+
+            // Share with widget
+            WidgetDataManager.updateTimetable(timetable)
         }
     }
 
@@ -275,22 +274,6 @@ class ClasstableViewModel: ObservableObject {
         let timestampKey = "timetableCacheTimestamp-\(yearId)"
         if timetable.isEmpty || !isCacheValid(for: timestampKey) {
             fetchTimetable()
-        }
-    }
-
-    private func shareTimetableWithWidgets() {
-        if !timetable.isEmpty {
-            NotificationCenter.default.post(
-                name: .timetableDataDidChange,
-                object: nil,
-                userInfo: ["timetable": timetable]
-            )
-
-            if let encoded = try? JSONEncoder().encode(timetable) {
-                UserDefaults(suiteName: "group.dev.wrye.Outspire")?.set(
-                    encoded, forKey: "widgetTimetableData"
-                )
-            }
         }
     }
 

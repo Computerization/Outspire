@@ -3,6 +3,7 @@ import SwiftSoup
 
 /// Authentication service for the new TSIMS server.
 /// Provides cookie-backed login/logout and stores minimal user info in-memory.
+@MainActor
 final class AuthServiceV2: ObservableObject {
     static let shared = AuthServiceV2()
     private init() {

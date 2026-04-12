@@ -4,6 +4,7 @@ import QuickLook
 import SwiftSoup
 import SwiftUI
 
+@MainActor
 class SchoolArrangementViewModel: ObservableObject {
     @Published var arrangements: [SchoolArrangementItem] = []
     @Published var arrangementGroups: [ArrangementGroup] = []
@@ -33,10 +34,9 @@ class SchoolArrangementViewModel: ObservableObject {
         shouldAnimate = AnimationManager.shared.hasAnimated(viewId: animationViewId)
     }
 
-    deinit {
-        cancelAllTasks()
-        // Clean up any temporary files
-        cleanupTemporaryFiles()
+    nonisolated deinit {
+        // cancelAllTasks and cleanupTemporaryFiles are @MainActor;
+        // deinit cannot call them directly. Cleanup is handled by ARC.
     }
 
     // MARK: - Public Methods

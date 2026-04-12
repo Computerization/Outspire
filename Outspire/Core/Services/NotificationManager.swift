@@ -2,6 +2,7 @@ import Combine
 import Foundation
 import UserNotifications
 
+@MainActor
 class NotificationManager: ObservableObject {
     static let shared = NotificationManager()
 

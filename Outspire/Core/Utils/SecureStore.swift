@@ -19,6 +19,7 @@ enum SecureStore {
 
         var addQuery = query
         addQuery[kSecValueData as String] = data
+        addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         _ = SecItemAdd(addQuery as CFDictionary, nil)
     }
 

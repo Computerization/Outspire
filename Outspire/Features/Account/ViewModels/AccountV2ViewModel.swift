@@ -1,6 +1,7 @@
 import Combine
 import SwiftUI
 
+@MainActor
 class AccountV2ViewModel: ObservableObject {
     @Published var code: String = ""
     @Published var password: String = ""
