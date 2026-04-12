@@ -352,6 +352,10 @@ class ClasstableViewModel: ObservableObject {
                         self.forceContentRefresh()
                     }
                 }
+                // Check if all classes are done and end the Live Activity
+                if second == 0 {
+                    self.endLiveActivityIfDone()
+                }
             }
         }
     }
@@ -553,16 +557,24 @@ class ClasstableViewModel: ObservableObject {
 
     // MARK: - Live Activity
 
+    /// The real weekday index (0=Mon..4=Fri, -1=weekend).
+    /// Used exclusively for Live Activity lifecycle — ignores selectedDayOverride/setAsToday.
+    private var realTodayDayIndex: Int {
+        let weekday = Calendar.current.component(.weekday, from: Date())
+        return (weekday == 1 || weekday == 7) ? -1 : weekday - 2
+    }
+
     func startLiveActivityIfNeeded(timetable: [[String]]) {
+        let todayIndex = realTodayDayIndex
         guard !timetable.isEmpty,
               !isHolidayActive(),
               !ClassActivityManager.shared.isActivityRunning,
-              effectiveDayIndex >= 0, effectiveDayIndex < 5
+              todayIndex >= 0, todayIndex < 5
         else { return }
 
         let periods = ClassPeriodsManager.shared.classPeriods
         let now = Date()
-        let dayColumn = effectiveDayIndex + 1
+        let dayColumn = todayIndex + 1
 
         var schedule: [ScheduledClass] = []
         for row in 1 ..< timetable.count {
@@ -592,6 +604,37 @@ class ClasstableViewModel: ObservableObject {
 
         guard schedule.contains(where: { $0.endTime > now }) else { return }
 
+        // Don't start LA before the first class starts (allow 30 min before)
+        if let firstStart = schedule.map(\.startTime).min() {
+            guard now >= firstStart.addingTimeInterval(-1800) else { return }
+        }
+
         ClassActivityManager.shared.startActivity(schedule: schedule, timetable: timetable)
+    }
+
+    /// End the Live Activity if all classes for today are done.
+    /// Uses realTodayDayIndex to avoid ending based on previewed day.
+    private func endLiveActivityIfDone() {
+        let todayIndex = realTodayDayIndex
+        guard ClassActivityManager.shared.isActivityRunning,
+              !timetable.isEmpty,
+              todayIndex >= 0, todayIndex < 5
+        else { return }
+
+        let periods = ClassPeriodsManager.shared.classPeriods
+        let dayColumn = todayIndex + 1
+        let now = Date()
+
+        // Check if any class still has time remaining
+        for row in 1 ..< timetable.count {
+            guard dayColumn < timetable[row].count else { continue }
+            let cellData = timetable[row][dayColumn]
+            guard !cellData.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { continue }
+            guard let period = periods.first(where: { $0.number == row }) else { continue }
+            if period.endTime > now { return } // Still have class
+        }
+
+        // All classes done
+        ClassActivityManager.shared.endActivity()
     }
 }

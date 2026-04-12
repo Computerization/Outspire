@@ -27,7 +27,6 @@ enum PushRegistrationService {
     struct RegisterPayload: Encodable {
         let deviceId: String
         let pushStartToken: String
-        let pushUpdateToken: String
         let sandbox: Bool
         let track: String
         let entryYear: String
@@ -43,7 +42,6 @@ enum PushRegistrationService {
 
     static func register(
         pushStartToken: String,
-        pushUpdateToken: String,
         studentInfo: StudentInfo,
         timetable: [[String]],
         completion: ((Bool) -> Void)? = nil
@@ -53,7 +51,6 @@ enum PushRegistrationService {
         let payload = RegisterPayload(
             deviceId: deviceId,
             pushStartToken: pushStartToken,
-            pushUpdateToken: pushUpdateToken,
             sandbox: isSandbox,
             track: studentInfo.track.rawValue,
             entryYear: studentInfo.entryYear,

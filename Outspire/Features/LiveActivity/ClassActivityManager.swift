@@ -9,23 +9,19 @@ final class ClassActivityManager: ObservableObject {
     @Published private(set) var isActivityRunning = false
     private var currentActivity: Activity<ClassActivityAttributes>?
     private var lastPushStartToken: String?
-    private var lastPushUpdateToken: String?
 
-    /// The full timetable grid, kept so we can register with the Worker
-    /// whenever tokens arrive (which may happen after startActivity returns).
+    /// The full timetable grid, kept so we can register with the Worker.
     private var currentTimetable: [[String]] = []
 
-    /// Whether we already sent a register request for the current token pair.
-    /// Reset when either token changes.
+    /// Whether we already sent a register request for the current token.
     private var hasRegistered = false
 
-    /// Guard against overlapping register requests so a stale response
-    /// cannot overwrite a newer token.
+    /// Guard against overlapping register requests.
     private var registerGeneration = 0
 
     private init() {
-        // Observe pushToStartToken once — this single Task lives for the
-        // entire app lifetime and covers both local and remote LA start.
+        // Observe pushToStartToken once — lives for the entire app lifetime.
+        // This is the only token needed for the self-driven LA architecture.
         if #available(iOS 17.2, *) {
             Task { @MainActor in
                 for await token in Activity<ClassActivityAttributes>.pushToStartTokenUpdates {
@@ -56,14 +52,32 @@ final class ClassActivityManager: ObservableObject {
     // MARK: - Restore
 
     /// Reattach to an activity that survived an app kill/relaunch.
+    /// Ends any activities with incompatible content-state (from pre-upgrade).
     private func restoreExistingActivity() {
-        guard let existing = Activity<ClassActivityAttributes>.activities.first else { return }
-        currentActivity = existing
-        isActivityRunning = true
-        Log.app.info("Restored existing Live Activity from previous session")
+        let activities = Activity<ClassActivityAttributes>.activities
+        guard !activities.isEmpty else { return }
 
-        // Re-observe push update token for this activity
-        observePushTokenUpdates(for: existing)
+        for activity in activities {
+            // Verify the content-state has the new classes array format
+            if activity.content.state.classes.isEmpty {
+                // Old-schema or empty activity — end it
+                Task {
+                    await activity.end(nil, dismissalPolicy: .immediate)
+                    Log.app.info("Ended incompatible Live Activity from previous version")
+                }
+                continue
+            }
+
+            // Adopt the first valid activity
+            if currentActivity == nil {
+                currentActivity = activity
+                isActivityRunning = true
+                Log.app.info("Restored existing Live Activity from previous session")
+            } else {
+                // Extra activity — end it
+                Task { await activity.end(nil, dismissalPolicy: .immediate) }
+            }
+        }
     }
 
     // MARK: - Start
@@ -77,28 +91,30 @@ final class ClassActivityManager: ObservableObject {
         }
 
         guard currentActivity == nil else {
-            Log.app.debug("Live Activity already running, updating instead")
-            updateForCurrentState(schedule: schedule)
+            Log.app.debug("Live Activity already running")
             return
         }
 
         let now = Date()
-        guard let firstClass = schedule.first(where: { $0.endTime > now }) else { return }
+        guard schedule.contains(where: { $0.endTime > now }) else { return }
 
-        let isBeforeClass = now < firstClass.startTime
-        let nextAfterFirst = schedule.first(where: { $0.startTime > firstClass.startTime })
+        // Build the full-day content state with all classes
+        let classInfos = schedule.map { sc in
+            ClassActivityAttributes.ContentState.ClassInfo(
+                name: sc.className,
+                room: sc.roomNumber,
+                start: sc.startTime,
+                end: sc.endTime
+            )
+        }
 
-        let initialState = ClassActivityAttributes.ContentState(
-            className: firstClass.className,
-            roomNumber: firstClass.roomNumber,
-            status: isBeforeClass ? .upcoming : .ongoing,
-            periodStart: firstClass.startTime,
-            periodEnd: firstClass.endTime,
-            nextClassName: nextAfterFirst?.className
-        )
-
+        let initialState = ClassActivityAttributes.ContentState(classes: classInfos)
         let attributes = ClassActivityAttributes(startDate: now)
-        let content = ActivityContent(state: initialState, staleDate: nil)
+
+        // Set staleDate to 15 min after last class
+        let lastEnd = schedule.map(\.endTime).max() ?? now
+        let staleDate = lastEnd.addingTimeInterval(900)
+        let content = ActivityContent(state: initialState, staleDate: staleDate)
 
         do {
             currentActivity = try Activity.request(
@@ -107,51 +123,63 @@ final class ClassActivityManager: ObservableObject {
                 pushType: .token
             )
             isActivityRunning = true
-            Log.app.info("Live Activity started for \(firstClass.className)")
-
-            // Clear stale update token from any previous activity
-            lastPushUpdateToken = nil
-            hasRegistered = false
-
-            if let activity = currentActivity {
-                observePushTokenUpdates(for: activity)
-            }
+            Log.app.info("Live Activity started with \(classInfos.count) classes")
         } catch {
             Log.app.error("Failed to start Live Activity: \(error.localizedDescription)")
         }
     }
 
-    /// Start observing pushTokenUpdates for a specific activity instance.
-    private func observePushTokenUpdates(for activity: Activity<ClassActivityAttributes>) {
-        Task { @MainActor in
-            for await token in activity.pushTokenUpdates {
-                let tokenString = token.map { String(format: "%02x", $0) }.joined()
-                Log.app.debug("LA push update token: \(tokenString.prefix(20))...")
-                if self.lastPushUpdateToken != tokenString {
-                    self.lastPushUpdateToken = tokenString
-                    self.hasRegistered = false
-                    self.registerIfReady()
-                }
+    // MARK: - End
+
+    /// End the current activity. Called when app is foregrounded and all classes are done.
+    func endActivity() {
+        guard let activity = currentActivity else { return }
+
+        Task {
+            await activity.end(nil, dismissalPolicy: .after(Date().addingTimeInterval(900)))
+            Log.app.info("Live Activity ended")
+        }
+
+        currentActivity = nil
+        isActivityRunning = false
+    }
+
+    /// End all activities (cleanup on logout).
+    func endAllActivities() {
+        Task {
+            for activity in Activity<ClassActivityAttributes>.activities {
+                await activity.end(nil, dismissalPolicy: .immediate)
             }
+        }
+        currentActivity = nil
+        isActivityRunning = false
+        currentTimetable = []
+        hasRegistered = false
+    }
+
+    // MARK: - Check if classes are done (for foreground end)
+
+    func endActivityIfClassesDone(schedule: [ScheduledClass]) {
+        guard currentActivity != nil else { return }
+        let now = Date()
+        if !schedule.contains(where: { $0.endTime > now }) {
+            endActivity()
         }
     }
 
     // MARK: - Worker Registration
 
-    /// Called on scenePhase .active to re-attempt registration if it
-    /// never succeeded (e.g. network was down on launch).
+    /// Called on scenePhase .active to re-attempt registration.
     func retryRegistrationIfNeeded() {
         guard !hasRegistered else { return }
         retryCount = 0
         registerIfReady()
     }
 
-    /// Called externally when the timetable data becomes available
-    /// (e.g. after fetch completes, which may be after startActivity).
+    /// Called externally when the timetable data becomes available.
     func setTimetable(_ timetable: [[String]]) {
         guard !timetable.isEmpty else { return }
         currentTimetable = timetable
-        // Timetable changed — allow a fresh registration
         hasRegistered = false
         registerIfReady()
     }
@@ -161,9 +189,9 @@ final class ClassActivityManager: ObservableObject {
     private static let maxRetries = 2
 
     private func registerIfReady() {
+        // Only need pushStartToken — no pushUpdateToken required
         guard !hasRegistered, !isRegistering,
               let startToken = lastPushStartToken,
-              let updateToken = lastPushUpdateToken,
               !currentTimetable.isEmpty,
               let userCode = AuthServiceV2.shared.user?.userCode,
               let studentInfo = StudentInfo(userCode: userCode)
@@ -176,7 +204,6 @@ final class ClassActivityManager: ObservableObject {
 
         PushRegistrationService.register(
             pushStartToken: startToken,
-            pushUpdateToken: updateToken,
             studentInfo: studentInfo,
             timetable: timetable
         ) { [weak self] success in
@@ -185,8 +212,6 @@ final class ClassActivityManager: ObservableObject {
                 self.isRegistering = false
 
                 if generation != self.registerGeneration {
-                    // Tokens or timetable changed while this request was in flight —
-                    // discard this result and re-register with current values.
                     self.registerIfReady()
                     return
                 }
@@ -206,95 +231,5 @@ final class ClassActivityManager: ObservableObject {
                 }
             }
         }
-    }
-
-    // MARK: - Update
-
-    func updateForCurrentState(schedule: [ScheduledClass]) {
-        guard let activity = currentActivity else { return }
-
-        let now = Date()
-
-        // Find current or next class
-        let currentClass = schedule.first(where: { $0.startTime <= now && $0.endTime > now })
-        let nextClass = schedule.first(where: { $0.startTime > now })
-
-        let state: ClassActivityAttributes.ContentState
-
-        if let current = currentClass {
-            let remaining = current.endTime.timeIntervalSince(now)
-            let nextAfter = schedule.first(where: { $0.startTime > current.startTime })
-            state = ClassActivityAttributes.ContentState(
-                className: current.className,
-                roomNumber: current.roomNumber,
-                status: remaining <= 300 ? .ending : .ongoing,
-                periodStart: current.startTime,
-                periodEnd: current.endTime,
-                nextClassName: nextAfter?.className
-            )
-        } else if let next = nextClass {
-            let previousClass = schedule.last(where: { $0.endTime <= now })
-            let gap = previousClass.map { next.startTime.timeIntervalSince($0.endTime) } ?? 0
-            let isLunchBreak = gap > 1800
-            let isBreak = previousClass != nil
-
-            if isBreak {
-                state = ClassActivityAttributes.ContentState(
-                    className: isLunchBreak ? "Lunch Break" : "Break",
-                    roomNumber: "",
-                    status: .break,
-                    periodStart: previousClass!.endTime,
-                    periodEnd: next.startTime,
-                    nextClassName: next.className
-                )
-            } else {
-                state = ClassActivityAttributes.ContentState(
-                    className: next.className,
-                    roomNumber: next.roomNumber,
-                    status: .upcoming,
-                    periodStart: next.startTime,
-                    periodEnd: next.endTime,
-                    nextClassName: nil
-                )
-            }
-        } else {
-            // All classes done
-            endActivity()
-            return
-        }
-
-        Task {
-            await activity.update(ActivityContent(state: state, staleDate: nil))
-        }
-    }
-
-    // MARK: - End
-
-    func endActivity() {
-        guard let activity = currentActivity else { return }
-
-        Task {
-            await activity.end(nil, dismissalPolicy: .after(Date().addingTimeInterval(900)))
-            Log.app.info("Live Activity ended")
-        }
-
-        currentActivity = nil
-        isActivityRunning = false
-        lastPushUpdateToken = nil
-    }
-
-    // MARK: - End all (cleanup)
-
-    func endAllActivities() {
-        Task {
-            for activity in Activity<ClassActivityAttributes>.activities {
-                await activity.end(nil, dismissalPolicy: .immediate)
-            }
-        }
-        currentActivity = nil
-        isActivityRunning = false
-        lastPushUpdateToken = nil
-        currentTimetable = []
-        hasRegistered = false
     }
 }

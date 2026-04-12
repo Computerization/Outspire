@@ -2,9 +2,77 @@ import ActivityKit
 import SwiftUI
 import WidgetKit
 
+// MARK: - State Computation
+
+/// Display state derived from the schedule array + current time.
+/// This is a pure function — no side effects, no state mutation.
+private struct DisplayState {
+    var className: String
+    var roomNumber: String
+    var status: Status
+    var periodStart: Date
+    var periodEnd: Date
+    var nextClassName: String?
+
+    enum Status {
+        case ongoing, ending, upcoming, `break`, event
+    }
+}
+
+/// Compute what to display from the full day schedule and current time.
+private func currentDisplayState(
+    from classes: [ClassActivityAttributes.ContentState.ClassInfo],
+    at now: Date
+) -> DisplayState? {
+    let sorted = classes.sorted { $0.start < $1.start }
+    guard !sorted.isEmpty else { return nil }
+
+    // Currently in a class?
+    if let current = sorted.first(where: { $0.start <= now && $0.end > now }) {
+        let next = sorted.first(where: { $0.start >= current.end })
+        let remaining = current.end.timeIntervalSince(now)
+        return DisplayState(
+            className: current.name,
+            roomNumber: current.room,
+            status: remaining <= 300 ? .ending : .ongoing,
+            periodStart: current.start,
+            periodEnd: current.end,
+            nextClassName: next?.name
+        )
+    }
+
+    // Between classes (break/lunch)?
+    let previous = sorted.last(where: { $0.end <= now })
+    if let next = sorted.first(where: { $0.start > now }) {
+        if let prev = previous {
+            let gap = next.start.timeIntervalSince(prev.end)
+            return DisplayState(
+                className: gap > 1800 ? "Lunch Break" : "Break",
+                roomNumber: "",
+                status: .break,
+                periodStart: prev.end,
+                periodEnd: next.start,
+                nextClassName: next.name
+            )
+        }
+        // Before first class
+        return DisplayState(
+            className: next.name,
+            roomNumber: next.room,
+            status: .upcoming,
+            periodStart: next.start,
+            periodEnd: next.end,
+            nextClassName: sorted.first(where: { $0.start > next.start })?.name
+        )
+    }
+
+    // All classes done — return nil to let staleDate dim the LA
+    return nil
+}
+
 // MARK: - Color Helpers
 
-private func stateColor(for state: ClassActivityAttributes.ContentState) -> Color {
+private func stateColor(for state: DisplayState) -> Color {
     switch state.status {
     case .ongoing:
         return SubjectColors.color(for: state.className)
@@ -19,7 +87,7 @@ private func stateColor(for state: ClassActivityAttributes.ContentState) -> Colo
     }
 }
 
-private func countdownColor(for state: ClassActivityAttributes.ContentState) -> Color {
+private func countdownColor(for state: DisplayState) -> Color {
     switch state.status {
     case .ongoing:
         return .white
@@ -30,17 +98,7 @@ private func countdownColor(for state: ClassActivityAttributes.ContentState) -> 
     }
 }
 
-private func progressGradient(for state: ClassActivityAttributes.ContentState) -> LinearGradient {
-    let color = stateColor(for: state)
-    switch state.status {
-    case .ongoing, .ending, .event:
-        return LinearGradient(colors: [color, color.opacity(0.6)], startPoint: .leading, endPoint: .trailing)
-    case .upcoming, .break:
-        return LinearGradient(colors: [.clear], startPoint: .leading, endPoint: .trailing)
-    }
-}
-
-private func countdownLabel(for status: ClassActivityAttributes.ContentState.Status) -> String {
+private func countdownLabel(for status: DisplayState.Status) -> String {
     switch status {
     case .ongoing, .ending:
         return "ENDS IN"
@@ -51,17 +109,46 @@ private func countdownLabel(for status: ClassActivityAttributes.ContentState.Sta
     }
 }
 
-private func progress(for state: ClassActivityAttributes.ContentState, at date: Date) -> Double {
+private func progress(for state: DisplayState, at date: Date) -> Double {
     let total = state.periodEnd.timeIntervalSince(state.periodStart)
     guard total > 0 else { return 0 }
     let elapsed = date.timeIntervalSince(state.periodStart)
     return min(max(elapsed / total, 0), 1)
 }
 
+// MARK: - Stale View (shown when all classes are done)
+
+private struct StaleView: View {
+    var body: some View {
+        HStack {
+            Text("Schedule Complete")
+                .font(WidgetFont.title())
+                .foregroundStyle(.white.opacity(0.4))
+            Spacer()
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
+    }
+}
+
 // MARK: - Lock Screen View
 
 private struct LockScreenView: View {
-    let state: ClassActivityAttributes.ContentState
+    let classes: [ClassActivityAttributes.ContentState.ClassInfo]
+
+    var body: some View {
+        TimelineView(.periodic(from: .now, by: 30)) { timeline in
+            if let state = currentDisplayState(from: classes, at: timeline.date) {
+                LockScreenStateView(state: state)
+            } else {
+                StaleView()
+            }
+        }
+    }
+}
+
+private struct LockScreenStateView: View {
+    let state: DisplayState
 
     var body: some View {
         VStack(spacing: 2) {
@@ -108,10 +195,9 @@ private struct LockScreenView: View {
                         .frame(height: 3)
 
                     TimelineView(.periodic(from: .now, by: 10)) { timeline in
-                        let prog = progress(for: state, at: timeline.date)
                         Capsule()
                             .fill(stateColor(for: state))
-                            .frame(width: geo.size.width * prog, height: 3)
+                            .frame(width: geo.size.width * progress(for: state, at: timeline.date), height: 3)
                     }
                 }
             }
@@ -134,44 +220,52 @@ private struct LockScreenView: View {
 // MARK: - Dynamic Island Views
 
 private struct CompactLeadingView: View {
-    let state: ClassActivityAttributes.ContentState
+    let classes: [ClassActivityAttributes.ContentState.ClassInfo]
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 10)) { timeline in
-            ProgressRing(
-                progress: progress(for: state, at: timeline.date),
-                color: stateColor(for: state),
-                lineWidth: 2,
-                size: 14
-            )
-            .padding(1)
+        TimelineView(.periodic(from: .now, by: 30)) { timeline in
+            if let state = currentDisplayState(from: classes, at: timeline.date) {
+                ProgressRing(
+                    progress: progress(for: state, at: timeline.date),
+                    color: stateColor(for: state),
+                    lineWidth: 2,
+                    size: 14
+                )
+                .padding(1)
+            }
         }
     }
 }
 
 private struct CompactTrailingView: View {
-    let state: ClassActivityAttributes.ContentState
+    let classes: [ClassActivityAttributes.ContentState.ClassInfo]
 
     var body: some View {
-        Text(timerInterval: state.periodStart ... state.periodEnd, countsDown: true)
-            .font(WidgetFont.number(size: 14))
-            .foregroundStyle(stateColor(for: state))
-            .monospacedDigit()
-            .frame(width: 44)
+        TimelineView(.periodic(from: .now, by: 30)) { timeline in
+            if let state = currentDisplayState(from: classes, at: timeline.date) {
+                Text(timerInterval: state.periodStart ... state.periodEnd, countsDown: true)
+                    .font(WidgetFont.number(size: 14))
+                    .foregroundStyle(stateColor(for: state))
+                    .monospacedDigit()
+                    .frame(width: 44)
+            }
+        }
     }
 }
 
 private struct MinimalView: View {
-    let state: ClassActivityAttributes.ContentState
+    let classes: [ClassActivityAttributes.ContentState.ClassInfo]
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 10)) { timeline in
-            ProgressRing(
-                progress: progress(for: state, at: timeline.date),
-                color: stateColor(for: state),
-                lineWidth: 2,
-                size: 18
-            )
+        TimelineView(.periodic(from: .now, by: 30)) { timeline in
+            if let state = currentDisplayState(from: classes, at: timeline.date) {
+                ProgressRing(
+                    progress: progress(for: state, at: timeline.date),
+                    color: stateColor(for: state),
+                    lineWidth: 2,
+                    size: 18
+                )
+            }
         }
     }
 }
@@ -181,73 +275,82 @@ private struct MinimalView: View {
 struct OutspireWidgetLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: ClassActivityAttributes.self) { context in
-            LockScreenView(state: context.state)
+            LockScreenView(classes: context.state.classes)
                 .activityBackgroundTint(.black.opacity(0.75))
                 .activitySystemActionForegroundColor(.white)
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(context.state.className)
-                            .font(WidgetFont.title(size: 15))
-                            .tracking(-0.2)
-                            .foregroundStyle(.white)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.85)
+                    TimelineView(.periodic(from: .now, by: 30)) { timeline in
+                        if let state = currentDisplayState(from: context.state.classes, at: timeline.date) {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(state.className)
+                                    .font(WidgetFont.title(size: 15))
+                                    .tracking(-0.2)
+                                    .foregroundStyle(.white)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.85)
 
-                        if !context.state.roomNumber.isEmpty {
-                            Text(context.state.roomNumber)
-                                .font(WidgetFont.caption(size: 10))
-                                .tracking(0.5)
-                                .foregroundStyle(.white.opacity(0.4))
+                                if !state.roomNumber.isEmpty {
+                                    Text(state.roomNumber)
+                                        .font(WidgetFont.caption(size: 10))
+                                        .tracking(0.5)
+                                        .foregroundStyle(.white.opacity(0.4))
+                                }
+                            }
+                            .frame(maxHeight: .infinity, alignment: .leading)
+                            .padding(.leading, 4)
                         }
                     }
-                    .frame(maxHeight: .infinity, alignment: .leading)
-                    .padding(.leading, 4)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text(countdownLabel(for: context.state.status))
-                            .font(WidgetFont.caption(size: 10))
-                            .tracking(0.5)
-                            .foregroundStyle(.white.opacity(0.4))
-                            .textCase(.uppercase)
+                    TimelineView(.periodic(from: .now, by: 30)) { timeline in
+                        if let state = currentDisplayState(from: context.state.classes, at: timeline.date) {
+                            VStack(alignment: .trailing, spacing: 2) {
+                                Text(countdownLabel(for: state.status))
+                                    .font(WidgetFont.caption(size: 10))
+                                    .tracking(0.5)
+                                    .foregroundStyle(.white.opacity(0.4))
+                                    .textCase(.uppercase)
 
-                        Text(timerInterval: context.state.periodStart ... context.state.periodEnd, countsDown: true)
-                            .font(WidgetFont.number(size: 22))
-                            .tracking(-1)
-                            .foregroundStyle(stateColor(for: context.state))
-                            .monospacedDigit()
-                            .multilineTextAlignment(.trailing)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
-                    .padding(.trailing, 4)
-                }
-                DynamicIslandExpandedRegion(.bottom) {
-                    GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            Capsule()
-                                .fill(.white.opacity(0.08))
-                                .frame(height: 3)
-
-                            TimelineView(.periodic(from: .now, by: 10)) { timeline in
-                                let prog = progress(for: context.state, at: timeline.date)
-                                Capsule()
-                                    .fill(stateColor(for: context.state))
-                                    .frame(width: geo.size.width * prog, height: 3)
+                                Text(timerInterval: state.periodStart ... state.periodEnd, countsDown: true)
+                                    .font(WidgetFont.number(size: 22))
+                                    .tracking(-1)
+                                    .foregroundStyle(stateColor(for: state))
+                                    .monospacedDigit()
+                                    .multilineTextAlignment(.trailing)
                             }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
+                            .padding(.trailing, 4)
                         }
                     }
-                    .frame(height: 3)
-                    .padding(.horizontal, 10)
-                    .padding(.top, 4)
+                }
+                DynamicIslandExpandedRegion(.bottom) {
+                    TimelineView(.periodic(from: .now, by: 30)) { timeline in
+                        if let state = currentDisplayState(from: context.state.classes, at: timeline.date) {
+                            GeometryReader { geo in
+                                ZStack(alignment: .leading) {
+                                    Capsule()
+                                        .fill(.white.opacity(0.08))
+                                        .frame(height: 3)
+
+                                    Capsule()
+                                        .fill(stateColor(for: state))
+                                        .frame(width: geo.size.width * progress(for: state, at: timeline.date), height: 3)
+                                }
+                            }
+                            .frame(height: 3)
+                            .padding(.horizontal, 10)
+                            .padding(.top, 4)
+                        }
+                    }
                 }
             } compactLeading: {
-                CompactLeadingView(state: context.state)
+                CompactLeadingView(classes: context.state.classes)
             } compactTrailing: {
-                CompactTrailingView(state: context.state)
+                CompactTrailingView(classes: context.state.classes)
             } minimal: {
-                MinimalView(state: context.state)
+                MinimalView(classes: context.state.classes)
             }
             .widgetURL(URL(string: "outspire://today"))
         }

@@ -7,10 +7,10 @@ binding = "OUTSPIRE_KV"
 id = "a8ada3a1a83f412ba0c172ef0fb80c63"
 
 [triggers]
-# Daily planner: 22:30 UTC = 06:30 CST — builds dispatch slots for all users
-# Per-minute dispatch: UTC 23:00–10:59 = CST 07:00–18:59 (covers school hours + buffer)
-# On non-school days, dispatch slots are empty so each tick is 1 KV read (null) → no-op
-crons = ["30 22 * * *", "* 23 * * *", "* 0-10 * * *"]
+# Daily planner: 22:30 UTC = 06:30 CST — builds one dispatch slot per user
+# Dispatch window: 23:30-00:30 UTC = 07:30-08:30 CST — fires the 08:00 start push
+# Also covers 07:45 for cancelled-class events
+crons = ["30 22 * * *", "* 23 * * *", "0-30 0 * * *"]
 
 [vars]
 GITHUB_CALENDAR_URL = "https://raw.githubusercontent.com/Computerization/wfla-events/main"
