@@ -8,6 +8,7 @@ interface APNsConfig {
   teamId: string;
   privateKey: string; // PEM-encoded .p8 key content
   bundleId: string;
+  useSandbox?: boolean; // true = api.sandbox.push.apple.com
 }
 
 interface APNsPushOptions {
@@ -128,7 +129,10 @@ export async function sendPush(
   options: APNsPushOptions
 ): Promise<{ ok: boolean; status: number; body: string }> {
   const jwt = await generateJWT(config);
-  const url = `https://api.push.apple.com/3/device/${options.token}`;
+  const host = config.useSandbox
+    ? "api.sandbox.push.apple.com"
+    : "api.push.apple.com";
+  const url = `https://${host}/3/device/${options.token}`;
 
   const response = await fetch(url, {
     method: "POST",

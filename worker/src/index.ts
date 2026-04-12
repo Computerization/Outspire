@@ -7,6 +7,7 @@ interface Env {
   APNS_PRIVATE_KEY: string;
   APNS_BUNDLE_ID: string;
   APNS_AUTH_SECRET: string;
+  APNS_USE_SANDBOX: string; // "true" for development builds, unset for production
   GITHUB_CALENDAR_URL: string;
   HOLIDAY_CN_URL: string;
 }
@@ -146,6 +147,7 @@ function apnsConfig(env: Env): APNsConfig {
     teamId: env.APNS_TEAM_ID,
     privateKey: env.APNS_PRIVATE_KEY,
     bundleId: env.APNS_BUNDLE_ID,
+    useSandbox: env.APNS_USE_SANDBOX === "true",
   };
 }
 

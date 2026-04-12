@@ -1,4 +1,0 @@
-{"type":"server-started","port":61670,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:61670","screen_dir":"/Users/alanye/Development/Xcode/Outspire/.superpowers/brainstorm/37029-1775979478/content","state_dir":"/Users/alanye/Development/Xcode/Outspire/.superpowers/brainstorm/37029-1775979478/state"}
-{"type":"screen-added","file":"/Users/alanye/Development/Xcode/Outspire/.superpowers/brainstorm/37029-1775979478/content/live-activity-mockups.html"}
-{"type":"screen-added","file":"/Users/alanye/Development/Xcode/Outspire/.superpowers/brainstorm/37029-1775979478/content/waiting.html"}
-{"type":"server-stopped","reason":"idle timeout"}
