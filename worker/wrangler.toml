@@ -4,7 +4,7 @@ compatibility_date = "2025-01-01"
 
 [[kv_namespaces]]
 binding = "OUTSPIRE_KV"
-id = "PLACEHOLDER_KV_ID"
+id = "a8ada3a1a83f412ba0c172ef0fb80c63"
 
 [triggers]
 crons = ["50 22 * * *", "* * * * *"]
