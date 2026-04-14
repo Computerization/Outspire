@@ -7,6 +7,7 @@ import SwiftSoup
 final class AuthServiceV2: ObservableObject {
     static let shared = AuthServiceV2()
     private static let installMarkerKey = "app.installation.id"
+    private static let keychainInstallMarkerKey = "app.installation.id.keychain"
     private static let usernameKey = "v2.username"
     private static let passwordKey = "v2.password"
 
@@ -434,10 +435,30 @@ final class AuthServiceV2: ObservableObject {
 
     private static func resetKeychainIfFreshInstall() {
         let defaults = UserDefaults.standard
-        guard defaults.string(forKey: installMarkerKey) == nil else { return }
+        let defaultsMarker = defaults.string(forKey: installMarkerKey)
+        let keychainMarker = SecureStore.get(keychainInstallMarkerKey)
 
-        SecureStore.remove(usernameKey)
-        SecureStore.remove(passwordKey)
-        defaults.set(UUID().uuidString, forKey: installMarkerKey)
+        switch (defaultsMarker, keychainMarker) {
+        case let (.some(defaultsMarker), .some(keychainMarker)):
+            if defaultsMarker != keychainMarker {
+                SecureStore.set(defaultsMarker, for: keychainInstallMarkerKey)
+            }
+
+        case let (.some(defaultsMarker), .none):
+            SecureStore.set(defaultsMarker, for: keychainInstallMarkerKey)
+
+        case (.none, .some):
+            SecureStore.remove(usernameKey)
+            SecureStore.remove(passwordKey)
+            let newMarker = UUID().uuidString
+            defaults.set(newMarker, forKey: installMarkerKey)
+            SecureStore.set(newMarker, for: keychainInstallMarkerKey)
+
+        case (.none, .none):
+            // Legacy upgrade or first-ever install: initialize markers without logging out.
+            let newMarker = UUID().uuidString
+            defaults.set(newMarker, forKey: installMarkerKey)
+            SecureStore.set(newMarker, for: keychainInstallMarkerKey)
+        }
     }
 }
