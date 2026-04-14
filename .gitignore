@@ -74,3 +74,6 @@ AGENTS.md
 
 # Superpowers brainstorm temp files
 .superpowers/brainstorm/
+
+# Wrangler
+.wrangler
