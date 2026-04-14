@@ -583,6 +583,7 @@ struct ClubInfoView: View {
         Section(header: memberSectionHeader) {
             MembersListView(
                 members: viewModel.members,
+                memberLoadError: viewModel.memberLoadError,
                 isLoading: viewModel.isLoading,
                 selectedGroup: viewModel.selectedGroup,
                 animateList: animateList,
@@ -870,6 +871,7 @@ struct ClubDetailView: View {
 
 struct MembersListView: View {
     let members: [Member]
+    let memberLoadError: String?
     let isLoading: Bool
     let selectedGroup: ClubGroup?
     let animateList: Bool
@@ -879,6 +881,8 @@ struct MembersListView: View {
         Group {
             if isLoading {
                 memberLoadingView
+            } else if let memberLoadError, members.isEmpty {
+                memberErrorView(message: memberLoadError)
             } else if members.isEmpty {
                 emptyMembersView
             } else {
@@ -908,11 +912,22 @@ struct MembersListView: View {
     }
 
     private var emptyMembersView: some View {
-        // New TSIMS: MemberList is not provided in this view; show a neutral placeholder regardless of auth
         Text("No members listed for this club.")
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.vertical, 8)
+    }
+
+    private func memberErrorView(message: String) -> some View {
+        VStack(spacing: 6) {
+            Image(systemName: "exclamationmark.triangle")
+                .foregroundStyle(.orange)
+            Text(message)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.vertical, 8)
     }
 
     private var membersList: some View {

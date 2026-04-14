@@ -1,4 +1,5 @@
 import Foundation
+import SwiftSoup
 
 struct V2Group: Decodable { let Id: Int; let Name: String }
 struct V2GroupAlt: Decodable { let GroupNo: String; let NameC: String?; let NameE: String? }
@@ -183,6 +184,152 @@ final class CASServiceV2 {
                 ))))
             }
         }
+    }
+
+    // MARK: - Group detail (HTML page with Supervisor / President / members)
+
+    struct GroupDetailParsed {
+        let supervisor: String?
+        let president: Member?
+        let members: [Member]
+        let debugSections: [String]
+    }
+
+    func fetchGroupDetail(
+        groupId: String,
+        completion: @escaping (Result<GroupDetailParsed, NetworkError>) -> Void
+    ) {
+        let encodedId = groupId.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? groupId
+        TSIMSClientV2.shared.getHTMLRaw(path: "/Stu/Cas/GroupDetail/\(encodedId)") { result in
+            switch result {
+            case let .failure(err):
+                completion(.failure(err))
+            case let .success(html):
+                // Parse off main thread to avoid blocking UI on large pages
+                DispatchQueue.global(qos: .userInitiated).async {
+                    do {
+                        let parsed = try Self.parseGroupDetailHTML(html)
+                        DispatchQueue.main.async { completion(.success(parsed)) }
+                    } catch {
+                        DispatchQueue.main.async { completion(.failure(.decodingError(error))) }
+                    }
+                }
+            }
+        }
+    }
+
+    private static func parseGroupDetailHTML(_ html: String) throws -> GroupDetailParsed {
+        let doc = try SwiftSoup.parse(html)
+        let titles = try doc.select("form.layui-form div.group-title, form.layui-form .group-title")
+
+        var supervisor: String? = nil
+        var president: Member? = nil
+        var members: [Member] = []
+        var memberIndex = 0
+        var matchedSectionCount = 0
+        var debugSections: [String] = []
+
+        func sectionItemTexts(from body: Element) throws -> [String] {
+            // "memeber" is a typo in the TSIMS HTML; both spellings are matched intentionally.
+            let selectors = "div.memeber-item, div.member-item, .memeber-item, .member-item, li, p"
+            var texts = try body.select(selectors).array().compactMap { element in
+                let text = try? element.text().trimmingCharacters(in: .whitespacesAndNewlines)
+                return (text?.isEmpty == false) ? text : nil
+            }
+
+            if texts.isEmpty {
+                texts = try body.children().array().compactMap { element in
+                    let text = try? element.text().trimmingCharacters(in: .whitespacesAndNewlines)
+                    return (text?.isEmpty == false) ? text : nil
+                }
+            }
+
+            if texts.isEmpty {
+                let raw = try body.text().trimmingCharacters(in: .whitespacesAndNewlines)
+                if !raw.isEmpty {
+                    texts = raw
+                        .components(separatedBy: CharacterSet.newlines)
+                        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                        .filter { !$0.isEmpty }
+                }
+            }
+
+            // Deduplicate while preserving order
+            var seen = Set<String>()
+            return texts.filter { seen.insert($0).inserted }
+        }
+
+        func memberFromItemText(_ raw: String, leaderYes: String, index: Int) -> Member? {
+            let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty || trimmed == "()" { return nil }
+            let name: String
+            let nickname: String?
+            if let open = trimmed.range(of: " (", options: .backwards) {
+                name = String(trimmed[..<open.lowerBound]).trimmingCharacters(in: .whitespaces)
+                var nick = String(trimmed[open.upperBound...])
+                if nick.hasSuffix(")") { nick.removeLast() }
+                let nickTrim = nick.trimmingCharacters(in: .whitespacesAndNewlines)
+                nickname = nickTrim.isEmpty ? nil : nickTrim
+            } else {
+                name = trimmed
+                nickname = nil
+            }
+            if name.isEmpty { return nil }
+            return Member(
+                StudentID: "html-member-\(index)",
+                S_Name: name,
+                S_Nickname: nickname,
+                S_STel: nil,
+                S_Email: nil,
+                LeaderYes: leaderYes,
+                C_Secede: nil
+            )
+        }
+
+        for title in titles {
+            guard let body = try title.nextElementSibling() else { continue }
+            let titleText = (try title.text()).trimmingCharacters(in: .whitespacesAndNewlines)
+            let normalizedTitle = titleText.lowercased()
+            let bodyText = (try body.text()).trimmingCharacters(in: .whitespacesAndNewlines)
+            let itemTexts = try sectionItemTexts(from: body)
+            let bodyPreview = bodyText.replacingOccurrences(of: "\n", with: " ").prefix(80)
+            debugSections.append("\(titleText) [items=\(itemTexts.count)] \(bodyPreview)")
+
+            if normalizedTitle.contains("supervisor") || titleText.contains("指导") {
+                matchedSectionCount += 1
+                supervisor = bodyText.isEmpty ? nil : bodyText
+            } else if normalizedTitle.contains("president") || normalizedTitle.contains("leader") || titleText.contains("会长") {
+                matchedSectionCount += 1
+                if let raw = itemTexts.first {
+                    if let m = memberFromItemText(raw, leaderYes: "2", index: memberIndex) {
+                        president = m
+                        memberIndex += 1
+                    }
+                }
+            } else if normalizedTitle.contains("member") || titleText.contains("成员") {
+                matchedSectionCount += 1
+                for raw in itemTexts {
+                    if let m = memberFromItemText(raw, leaderYes: "0", index: memberIndex) {
+                        members.append(m)
+                        memberIndex += 1
+                    }
+                }
+            }
+        }
+
+        if matchedSectionCount == 0 {
+            struct GroupDetailParseError: LocalizedError {
+                var errorDescription: String? { "Unable to locate member sections in group detail page" }
+            }
+            throw GroupDetailParseError()
+        }
+
+        return GroupDetailParsed(
+            supervisor: supervisor,
+            president: president,
+            members: members,
+            debugSections: debugSections
+        )
     }
 
     func fetchRecords(

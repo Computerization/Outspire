@@ -9,6 +9,7 @@ class ClubInfoViewModel: ObservableObject {
     @Published var groups: [ClubGroup] = []
     @Published var groupInfo: GroupInfo?
     @Published var members: [Member] = []
+    @Published var memberLoadError: String?
     @Published var instructorName: String?
     @Published var errorMessage: String?
     @Published var isLoading: Bool = false
@@ -171,20 +172,85 @@ class ClubInfoViewModel: ObservableObject {
         )
         self.groupInfo = info
         self.instructorName = detail?.TeacherName
+        self.members = []
+        self.memberLoadError = nil
+
+        // Two async fetches run in parallel; DispatchGroup gates `isLoading` until both complete.
+        let loadGroup = DispatchGroup()
+
         // Determine membership by checking MyGroups (match by Id or GroupNo)
+        loadGroup.enter()
         CASServiceV2.shared.fetchMyGroups { [weak self] res in
+            guard let self = self else { return }
+            switch res {
+            case let .success(myGroups):
+                let targetKeys = Set([group.C_GroupsID, group.C_GroupNo].filter { !$0.isEmpty })
+                let myKeys = Set(myGroups.flatMap { [$0.C_GroupsID, $0.C_GroupNo] }.filter { !$0.isEmpty })
+                self.isUserMember = !targetKeys.isDisjoint(with: myKeys)
+            case .failure:
+                self.isUserMember = false
+            }
+            loadGroup.leave()
+        }
+
+        // Fetch the rendered GroupDetail page for Supervisor / President / members.
+        // Some endpoints accept numeric group IDs while others accept group numbers, so retry
+        // with both identifiers before surfacing an error.
+        var detailIdentifiers: [String] = []
+        for id in [group.C_GroupsID, group.C_GroupNo] where !id.isEmpty {
+            if !detailIdentifiers.contains(id) { detailIdentifiers.append(id) }
+        }
+        var lastDetailError: NetworkError?
+        loadGroup.enter()
+        func loadGroupDetail(using identifiers: [String], index: Int = 0) {
+            guard index < identifiers.count else {
+                if let lastDetailError {
+                    self.memberLoadError = "Unable to load the member roster: \(lastDetailError.localizedDescription)"
+                } else {
+                    self.memberLoadError = "Unable to load the member roster for this club."
+                }
+                loadGroup.leave()
+                return
+            }
+
+            CASServiceV2.shared.fetchGroupDetail(groupId: identifiers[index]) { [weak self] res in
+                guard let self = self else { return }
+
+                switch res {
+                case let .success(parsed):
+                    var roster: [Member] = []
+                    if let pres = parsed.president { roster.append(pres) }
+                    roster.append(contentsOf: parsed.members)
+                    self.members = roster
+                    if roster.isEmpty {
+                        if Configuration.debugNetworkLogging, !parsed.debugSections.isEmpty {
+                            self.memberLoadError = "Parsed detail but found no members. Sections: \(parsed.debugSections.joined(separator: " | "))"
+                        } else {
+                            self.memberLoadError = "Parsed detail but found no members for this club."
+                        }
+                    } else {
+                        self.memberLoadError = nil
+                    }
+                    if let sup = parsed.supervisor?.trimmingCharacters(in: .whitespacesAndNewlines),
+                       !sup.isEmpty
+                    {
+                        self.instructorName = sup
+                    }
+                    loadGroup.leave()
+                case let .failure(error):
+                    lastDetailError = error
+                    loadGroupDetail(using: identifiers, index: index + 1)
+                }
+            }
+        }
+
+        loadGroupDetail(using: detailIdentifiers)
+
+        loadGroup.notify(queue: .main) { [weak self] in
             guard let self = self else { return }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 self.isLoading = false
                 self.isFromURLNavigation = false
-                switch res {
-                case let .success(myGroups):
-                    let targetKeys = Set([group.C_GroupsID, group.C_GroupNo].filter { !$0.isEmpty })
-                    let myKeys = Set(myGroups.flatMap { [$0.C_GroupsID, $0.C_GroupNo] }.filter { !$0.isEmpty })
-                    self.isUserMember = !targetKeys.isDisjoint(with: myKeys)
-                case .failure:
-                    self.isUserMember = false
-                }
             }
         }
     }
