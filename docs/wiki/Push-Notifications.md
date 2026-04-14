@@ -122,4 +122,4 @@ All mutating endpoints require `x-auth-secret` header matching the `APNS_AUTH_SE
 
 If offline at logout, the unregister is tombstoned and retried on next launch.
 
-For the full push worker architecture, see [docs/apns-push-worker.md](../apns-push-worker.md).
+For the full push worker architecture, see [docs/archive/apns-push-worker.md](../archive/apns-push-worker.md).

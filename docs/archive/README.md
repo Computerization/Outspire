@@ -13,3 +13,4 @@ Historical planning documents, specs, and research notes. These are preserved fo
 | `2026-04-13-self-driven-live-activity.md` | 2026-04-13 | Self-driven Live Activity spec |
 | `2026-04-13-live-activity-progress-bar-notes.md` | 2026-04-13 | Progress bar implementation notes |
 | `2026-04-13-live-activity-research-and-spec.md` | 2026-04-13 | Live Activity research and specifications |
+| `apns-push-worker.md` | 2026-04-12 | APNs push worker architecture and two-phase cron design |

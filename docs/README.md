@@ -11,13 +11,9 @@ The [wiki/](wiki/Home.md) directory contains the comprehensive project documenta
 
 Start here: [wiki/Home.md](wiki/Home.md)
 
-## Architecture Decision Records
-
-- [apns-push-worker.md](apns-push-worker.md) -- APNs push worker architecture and two-phase cron design
-
 ## Archive
 
-Historical planning documents and specs in [archive/](archive/README.md).
+Historical planning documents, specs, and architecture records in [archive/](archive/README.md).
 
 ## Changelog
 
