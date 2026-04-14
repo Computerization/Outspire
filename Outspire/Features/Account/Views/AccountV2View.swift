@@ -58,7 +58,10 @@ struct AccountV2View: View {
                         .submitLabel(.next)
                         .onSubmit { focusedField = .password }
                         .padding(14)
-                        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
+                        .background(
+                            Color(.secondarySystemBackground),
+                            in: RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous)
+                        )
 
                     SecureField("Password", text: $viewModel.password)
                         .textContentType(.password)
@@ -68,7 +71,10 @@ struct AccountV2View: View {
                         .submitLabel(.done)
                         .onSubmit { focusedField = nil; login() }
                         .padding(14)
-                        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous))
+                        .background(
+                            Color(.secondarySystemBackground),
+                            in: RoundedRectangle(cornerRadius: AppRadius.md, style: .continuous)
+                        )
                 }
                 .padding(.horizontal, 4)
                 .staggeredEntry(index: 2, animate: animateLogin)

@@ -51,9 +51,9 @@ struct SmallWidgetView: View {
                         countsDown: true,
                         showsHours: false
                     )
-                        .numberStyle(size: 34)
-                        .foregroundStyle(primaryForegroundStyle)
-                        .tracking(-1.5)
+                    .numberStyle(size: 34)
+                    .foregroundStyle(primaryForegroundStyle)
+                    .tracking(-1.5)
 
                     Text(widgetSubtitle(for: cls))
                         .captionStyle()
@@ -93,9 +93,9 @@ struct SmallWidgetView: View {
                         countsDown: true,
                         showsHours: false
                     )
-                        .numberStyle(size: 34)
-                        .foregroundStyle(primaryForegroundStyle)
-                        .tracking(-1.5)
+                    .numberStyle(size: 34)
+                    .foregroundStyle(primaryForegroundStyle)
+                    .tracking(-1.5)
 
                     Text(widgetSubtitle(for: cls))
                         .captionStyle()
@@ -135,9 +135,9 @@ struct SmallWidgetView: View {
                         countsDown: true,
                         showsHours: false
                     )
-                        .numberStyle(size: 34)
-                        .foregroundStyle(primaryForegroundStyle)
-                        .tracking(-1.5)
+                    .numberStyle(size: 34)
+                    .foregroundStyle(primaryForegroundStyle)
+                    .tracking(-1.5)
                 }
 
                 if let next = entry.upcomingClasses.first, !next.roomNumber.isEmpty {
@@ -200,7 +200,11 @@ struct SmallWidgetView: View {
     @ViewBuilder
     private var breakBackground: some View {
         if let cls = entry.currentClass, cls.className.contains("Lunch") {
-            LinearGradient(colors: [Color.purple.opacity(0.6), Color.purple.opacity(0.4)], startPoint: .topLeading, endPoint: .bottomTrailing)
+            LinearGradient(
+                colors: [Color.purple.opacity(0.6), Color.purple.opacity(0.4)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
         } else if let next = entry.upcomingClasses.first {
             SubjectColors.gradient(for: next.className)
         } else {
@@ -209,15 +213,27 @@ struct SmallWidgetView: View {
     }
 
     private var grayGradient: LinearGradient {
-        LinearGradient(colors: [Color.gray.opacity(0.5), Color.gray.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing)
+        LinearGradient(
+            colors: [Color.gray.opacity(0.5), Color.gray.opacity(0.3)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
     }
 
     private var warmGradient: LinearGradient {
-        LinearGradient(colors: [Color.orange.opacity(0.6), Color.orange.opacity(0.4)], startPoint: .topLeading, endPoint: .bottomTrailing)
+        LinearGradient(
+            colors: [Color.orange.opacity(0.6), Color.orange.opacity(0.4)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
     }
 
     private var purpleGradient: LinearGradient {
-        LinearGradient(colors: [Color.purple.opacity(0.6), Color.purple.opacity(0.4)], startPoint: .topLeading, endPoint: .bottomTrailing)
+        LinearGradient(
+            colors: [Color.purple.opacity(0.6), Color.purple.opacity(0.4)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
     }
 
     private func widgetSubtitle(for scheduledClass: ScheduledClass) -> String {

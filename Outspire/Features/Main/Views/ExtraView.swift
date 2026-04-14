@@ -70,25 +70,42 @@ struct ExtraView: View {
     private var quickLinksGrid: some View {
         VStack(spacing: AppSpace.sm) {
             HStack(spacing: AppSpace.sm) {
-                quickLinkTile("Today", systemImage: "text.rectangle.page",
-                              colors: [AppColor.brand.opacity(0.9), AppColor.brand.opacity(0.7)],
-                              target: .today)
-                quickLinkTile("Classes", systemImage: "calendar.day.timeline.left",
-                              colors: [Color.indigo.opacity(0.85), Color.indigo.opacity(0.65)],
-                              target: .classes)
+                quickLinkTile(
+                    "Today",
+                    systemImage: "text.rectangle.page",
+                    colors: [AppColor.brand.opacity(0.9), AppColor.brand.opacity(0.7)],
+                    target: .today
+                )
+                quickLinkTile(
+                    "Classes",
+                    systemImage: "calendar.day.timeline.left",
+                    colors: [Color.indigo.opacity(0.85), Color.indigo.opacity(0.65)],
+                    target: .classes
+                )
             }
             HStack(spacing: AppSpace.sm) {
-                quickLinkTile("Activities", systemImage: "checklist",
-                              colors: [Color.green.opacity(0.85), Color.green.opacity(0.65)],
-                              target: .activities)
-                quickLinkTile("Grades", systemImage: "pencil.and.list.clipboard",
-                              colors: [Color.orange.opacity(0.85), Color.orange.opacity(0.65)],
-                              target: .grades)
+                quickLinkTile(
+                    "Activities",
+                    systemImage: "checklist",
+                    colors: [Color.green.opacity(0.85), Color.green.opacity(0.65)],
+                    target: .activities
+                )
+                quickLinkTile(
+                    "Grades",
+                    systemImage: "pencil.and.list.clipboard",
+                    colors: [Color.orange.opacity(0.85), Color.orange.opacity(0.65)],
+                    target: .grades
+                )
             }
         }
     }
 
-    private func quickLinkTile(_ title: String, systemImage: String, colors: [Color], target: ExploreTarget) -> some View {
+    private func quickLinkTile(
+        _ title: String,
+        systemImage: String,
+        colors: [Color],
+        target: ExploreTarget
+    ) -> some View {
         Button {
             HapticManager.shared.playLightFeedback()
             navTarget = target

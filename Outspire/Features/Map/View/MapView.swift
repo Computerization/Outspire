@@ -55,7 +55,6 @@ struct MapView: View {
                 MapPolygon(coordinates: convertedBoundary)
                     .foregroundStyle(.cyan.opacity(0.3))
                     .stroke(.cyan, lineWidth: 2)
-
             }
             .mapControls {
                 MapCompass()

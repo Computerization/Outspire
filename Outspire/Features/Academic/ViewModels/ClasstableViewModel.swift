@@ -57,7 +57,7 @@ class ClasstableViewModel: ObservableObject {
         // Load cached years
         if let cachedYearsData = UserDefaults.standard.data(forKey: "cachedYears"),
            let decodedYears = try? JSONDecoder().decode([Year].self, from: cachedYearsData),
-           (ignoreTTL || isCacheValid(for: "yearsCacheTimestamp"))
+           ignoreTTL || isCacheValid(for: "yearsCacheTimestamp")
         {
             self.years = decodedYears
 
@@ -89,7 +89,7 @@ class ClasstableViewModel: ObservableObject {
            let decodedTimetable = try? JSONDecoder().decode(
                [[String]].self, from: cachedTimetableData
            ),
-           (ignoreTTL || isCacheValid(for: timestampKey)),
+           ignoreTTL || isCacheValid(for: timestampKey),
            UserDefaults.standard.integer(forKey: versionKey) == timetableCacheVersion
         {
             self.timetable = decodedTimetable

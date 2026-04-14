@@ -135,7 +135,10 @@ class ConnectivityManager: ObservableObject {
         let task = URLSession.shared.dataTask(with: request) { _, response, error in
             DispatchQueue.main.async {
                 if let error = error {
-                    Log.net.error("Server check failed: \(urlString, privacy: .public), error: \(error.localizedDescription, privacy: .public)")
+                    Log.net
+                        .error(
+                            "Server check failed: \(urlString, privacy: .public), error: \(error.localizedDescription, privacy: .public)"
+                        )
                     completion(false)
                     return
                 }

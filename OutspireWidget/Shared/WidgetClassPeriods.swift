@@ -22,10 +22,10 @@ enum WidgetClassPeriods {
             (6, 13, 20, 14, 0),
             (7, 14, 10, 14, 50),
             (8, 15, 0, 15, 40),
-            (9, 15, 50, 16, 30),
+            (9, 15, 50, 16, 30)
         ]
 
-        return times.map { (num, sh, sm, eh, em) in
+        return times.map { num, sh, sm, eh, em in
             let start = calendar.date(bySettingHour: sh, minute: sm, second: 0, of: now)!
             let end = calendar.date(bySettingHour: eh, minute: em, second: 0, of: now)!
             return Period(number: num, startTime: start, endTime: end)

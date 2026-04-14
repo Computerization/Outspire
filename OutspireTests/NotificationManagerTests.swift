@@ -82,5 +82,4 @@ extension NotificationManagerTests {
         let removed = SecureStore.get(key)
         XCTAssertNil(removed)
     }
-
 }

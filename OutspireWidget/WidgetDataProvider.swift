@@ -32,14 +32,26 @@ struct ClassWidgetProvider: TimelineProvider {
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<ClassWidgetEntry>) -> Void) {
         guard WidgetDataReader.readAuthState() else {
-            let entry = ClassWidgetEntry(date: Date(), status: .notAuthenticated, currentClass: nil, upcomingClasses: [], eventName: nil)
+            let entry = ClassWidgetEntry(
+                date: Date(),
+                status: .notAuthenticated,
+                currentClass: nil,
+                upcomingClasses: [],
+                eventName: nil
+            )
             completion(Timeline(entries: [entry], policy: .atEnd))
             return
         }
 
         let holiday = WidgetDataReader.readHolidayMode()
         if holiday.enabled {
-            let entry = ClassWidgetEntry(date: Date(), status: .holiday, currentClass: nil, upcomingClasses: [], eventName: nil)
+            let entry = ClassWidgetEntry(
+                date: Date(),
+                status: .holiday,
+                currentClass: nil,
+                upcomingClasses: [],
+                eventName: nil
+            )
             completion(Timeline(entries: [entry], policy: .atEnd))
             return
         }
@@ -48,7 +60,13 @@ struct ClassWidgetProvider: TimelineProvider {
         let schedule = buildTodaySchedule(from: timetable)
 
         if schedule.isEmpty {
-            let entry = ClassWidgetEntry(date: Date(), status: .noClasses, currentClass: nil, upcomingClasses: [], eventName: nil)
+            let entry = ClassWidgetEntry(
+                date: Date(),
+                status: .noClasses,
+                currentClass: nil,
+                upcomingClasses: [],
+                eventName: nil
+            )
             completion(Timeline(entries: [entry], policy: .after(nextMorning())))
             return
         }

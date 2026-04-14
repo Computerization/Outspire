@@ -23,9 +23,9 @@ enum PushRegistrationService {
 
     static var isSandbox: Bool {
         #if DEBUG
-        return true
+            return true
         #else
-        return false
+            return false
         #endif
     }
 
@@ -82,7 +82,8 @@ enum PushRegistrationService {
         )
 
         if let fingerprint = registerFingerprint(for: payload),
-           shouldSkipRegister(fingerprint: fingerprint) {
+           shouldSkipRegister(fingerprint: fingerprint)
+        {
             Log.net.info("Skipping redundant push register")
             completion?(true)
             return

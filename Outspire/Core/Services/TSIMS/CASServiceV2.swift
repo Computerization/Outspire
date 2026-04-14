@@ -288,9 +288,9 @@ final class CASServiceV2 {
 
         for title in titles {
             guard let body = try title.nextElementSibling() else { continue }
-            let titleText = (try title.text()).trimmingCharacters(in: .whitespacesAndNewlines)
+            let titleText = try (title.text()).trimmingCharacters(in: .whitespacesAndNewlines)
             let normalizedTitle = titleText.lowercased()
-            let bodyText = (try body.text()).trimmingCharacters(in: .whitespacesAndNewlines)
+            let bodyText = try (body.text()).trimmingCharacters(in: .whitespacesAndNewlines)
             let itemTexts = try sectionItemTexts(from: body)
             let bodyPreview = bodyText.replacingOccurrences(of: "\n", with: " ").prefix(80)
             debugSections.append("\(titleText) [items=\(itemTexts.count)] \(bodyPreview)")
@@ -298,7 +298,9 @@ final class CASServiceV2 {
             if normalizedTitle.contains("supervisor") || titleText.contains("指导") {
                 matchedSectionCount += 1
                 supervisor = bodyText.isEmpty ? nil : bodyText
-            } else if normalizedTitle.contains("president") || normalizedTitle.contains("leader") || titleText.contains("会长") {
+            } else if normalizedTitle.contains("president") || normalizedTitle.contains("leader") || titleText
+                .contains("会长")
+            {
                 matchedSectionCount += 1
                 if let raw = itemTexts.first {
                     if let m = memberFromItemText(raw, leaderYes: "2", index: memberIndex) {

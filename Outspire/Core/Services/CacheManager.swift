@@ -95,7 +95,6 @@ class CacheManager {
                 userDefaults.removeObject(forKey: key)
             }
         }
-
     }
 
     // Clear school arrangements cache

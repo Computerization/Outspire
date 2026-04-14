@@ -38,8 +38,7 @@ struct OutspireApp: App {
     // Add NSUserActivity property to handle universal links
     @State private var userActivity = NSUserActivity(activityType: NSUserActivityTypeBrowsingWeb)
 
-    init() {
-    }
+    init() {}
 
     var body: some Scene {
         WindowGroup {
@@ -204,8 +203,7 @@ class OutspireAppDelegate: NSObject, UIApplicationDelegate {
         return true
     }
 
-    func applicationWillTerminate(_ application: UIApplication) {
-    }
+    func applicationWillTerminate(_ application: UIApplication) {}
 
     // Handle URL scheme when app is launched from a URL
     func application(

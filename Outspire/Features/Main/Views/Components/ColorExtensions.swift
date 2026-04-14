@@ -19,5 +19,4 @@ extension Color {
         let newBrightness = max(min(b + amount, 1.0), 0.0)
         return Color(UIColor(hue: h, saturation: s, brightness: newBrightness, alpha: a))
     }
-
 }

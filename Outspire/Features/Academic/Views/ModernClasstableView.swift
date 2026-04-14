@@ -322,7 +322,7 @@ struct ModernScheduleRow: View {
             (.brown.opacity(0.8), ["economics", "econ"]),
             (.cyan.opacity(0.8), ["arts", "art", "tok"]),
             (.indigo.opacity(0.8), ["chinese", "mandarin", "语文"]),
-            (.gray.opacity(0.8), ["history", "历史", "geography", "geo", "政治"]),
+            (.gray.opacity(0.8), ["history", "历史", "geography", "geo", "政治"])
         ]
 
         for (color, keywords) in colors {

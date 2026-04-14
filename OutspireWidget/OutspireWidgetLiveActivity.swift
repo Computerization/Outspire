@@ -144,12 +144,12 @@ private struct LockScreenView: View {
                             countsDown: true,
                             showsHours: false
                         )
-                            .font(WidgetFont.number())
-                            .tracking(-1)
-                            .foregroundStyle(countdownColor(for: state))
-                            .monospacedDigit()
-                            .multilineTextAlignment(.trailing)
-                            .frame(width: 90, alignment: .trailing)
+                        .font(WidgetFont.number())
+                        .tracking(-1)
+                        .foregroundStyle(countdownColor(for: state))
+                        .monospacedDigit()
+                        .multilineTextAlignment(.trailing)
+                        .frame(width: 90, alignment: .trailing)
                     }
                 }
 
@@ -191,10 +191,10 @@ private struct CompactTrailingView: View {
             countsDown: true,
             showsHours: false
         )
-            .font(WidgetFont.number(size: 14))
-            .foregroundStyle(stateColor(for: state))
-            .monospacedDigit()
-            .frame(width: 44)
+        .font(WidgetFont.number(size: 14))
+        .foregroundStyle(stateColor(for: state))
+        .monospacedDigit()
+        .frame(width: 44)
     }
 }
 
@@ -258,11 +258,11 @@ struct OutspireWidgetLiveActivity: Widget {
                             countsDown: true,
                             showsHours: false
                         )
-                            .font(WidgetFont.number(size: 22))
-                            .tracking(-1)
-                            .foregroundStyle(stateColor(for: state))
-                            .monospacedDigit()
-                            .multilineTextAlignment(.trailing)
+                        .font(WidgetFont.number(size: 22))
+                        .tracking(-1)
+                        .foregroundStyle(stateColor(for: state))
+                        .monospacedDigit()
+                        .multilineTextAlignment(.trailing)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
                     .padding(.trailing, 4)
@@ -297,82 +297,82 @@ private func dynamicIslandSubtitle(for state: DisplayState) -> String {
 }
 
 #if DEBUG
-private enum LiveActivityPreviewData {
-    static let now = Date()
-    static let attributes = ClassActivityAttributes(startDate: now)
+    private enum LiveActivityPreviewData {
+        static let now = Date()
+        static let attributes = ClassActivityAttributes(startDate: now)
 
-    static let ongoing = ClassActivityAttributes.ContentState(
-        dayKey: "2026-04-13",
-        phase: .ongoing,
-        title: "Mathematics",
-        subtitle: "A108",
-        rangeStart: now.addingTimeInterval(-900),
-        rangeEnd: now.addingTimeInterval(1500),
-        nextTitle: "English Literature",
-        sequence: 4
-    )
+        static let ongoing = ClassActivityAttributes.ContentState(
+            dayKey: "2026-04-13",
+            phase: .ongoing,
+            title: "Mathematics",
+            subtitle: "A108",
+            rangeStart: now.addingTimeInterval(-900),
+            rangeEnd: now.addingTimeInterval(1500),
+            nextTitle: "English Literature",
+            sequence: 4
+        )
 
-    static let breakTime = ClassActivityAttributes.ContentState(
-        dayKey: "2026-04-13",
-        phase: .breakTime,
-        title: "Break",
-        subtitle: "Next: Self-Study",
-        rangeStart: now,
-        rangeEnd: now.addingTimeInterval(600),
-        nextTitle: "Self-Study",
-        sequence: 6
-    )
+        static let breakTime = ClassActivityAttributes.ContentState(
+            dayKey: "2026-04-13",
+            phase: .breakTime,
+            title: "Break",
+            subtitle: "Next: Self-Study",
+            rangeStart: now,
+            rangeEnd: now.addingTimeInterval(600),
+            nextTitle: "Self-Study",
+            sequence: 6
+        )
 
-    static let lunch = ClassActivityAttributes.ContentState(
-        dayKey: "2026-04-13",
-        phase: .breakTime,
-        title: "Lunch Break",
-        subtitle: "Next: Chemistry",
-        rangeStart: now,
-        rangeEnd: now.addingTimeInterval(1800),
-        nextTitle: "Chemistry",
-        sequence: 9
-    )
+        static let lunch = ClassActivityAttributes.ContentState(
+            dayKey: "2026-04-13",
+            phase: .breakTime,
+            title: "Lunch Break",
+            subtitle: "Next: Chemistry",
+            rangeStart: now,
+            rangeEnd: now.addingTimeInterval(1800),
+            nextTitle: "Chemistry",
+            sequence: 9
+        )
 
-    static let done = ClassActivityAttributes.ContentState(
-        dayKey: "2026-04-13",
-        phase: .done,
-        title: "Schedule Complete",
-        subtitle: "",
-        rangeStart: now,
-        rangeEnd: now.addingTimeInterval(900),
-        nextTitle: nil,
-        sequence: 20
-    )
-}
+        static let done = ClassActivityAttributes.ContentState(
+            dayKey: "2026-04-13",
+            phase: .done,
+            title: "Schedule Complete",
+            subtitle: "",
+            rangeStart: now,
+            rangeEnd: now.addingTimeInterval(900),
+            nextTitle: nil,
+            sequence: 20
+        )
+    }
 
-#Preview("LA Ongoing", as: .content, using: LiveActivityPreviewData.attributes) {
-    OutspireWidgetLiveActivity()
-} contentStates: {
-    LiveActivityPreviewData.ongoing
-}
+    #Preview("LA Ongoing", as: .content, using: LiveActivityPreviewData.attributes) {
+        OutspireWidgetLiveActivity()
+    } contentStates: {
+        LiveActivityPreviewData.ongoing
+    }
 
-#Preview("LA Break", as: .content, using: LiveActivityPreviewData.attributes) {
-    OutspireWidgetLiveActivity()
-} contentStates: {
-    LiveActivityPreviewData.breakTime
-}
+    #Preview("LA Break", as: .content, using: LiveActivityPreviewData.attributes) {
+        OutspireWidgetLiveActivity()
+    } contentStates: {
+        LiveActivityPreviewData.breakTime
+    }
 
-#Preview("LA Lunch", as: .content, using: LiveActivityPreviewData.attributes) {
-    OutspireWidgetLiveActivity()
-} contentStates: {
-    LiveActivityPreviewData.lunch
-}
+    #Preview("LA Lunch", as: .content, using: LiveActivityPreviewData.attributes) {
+        OutspireWidgetLiveActivity()
+    } contentStates: {
+        LiveActivityPreviewData.lunch
+    }
 
-#Preview("LA Done", as: .content, using: LiveActivityPreviewData.attributes) {
-    OutspireWidgetLiveActivity()
-} contentStates: {
-    LiveActivityPreviewData.done
-}
+    #Preview("LA Done", as: .content, using: LiveActivityPreviewData.attributes) {
+        OutspireWidgetLiveActivity()
+    } contentStates: {
+        LiveActivityPreviewData.done
+    }
 
-#Preview("DI Expanded", as: .dynamicIsland(.expanded), using: LiveActivityPreviewData.attributes) {
-    OutspireWidgetLiveActivity()
-} contentStates: {
-    LiveActivityPreviewData.ongoing
-}
+    #Preview("DI Expanded", as: .dynamicIsland(.expanded), using: LiveActivityPreviewData.attributes) {
+        OutspireWidgetLiveActivity()
+    } contentStates: {
+        LiveActivityPreviewData.ongoing
+    }
 #endif

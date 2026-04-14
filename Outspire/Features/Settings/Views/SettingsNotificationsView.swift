@@ -38,9 +38,11 @@ struct SettingsNotificationsView: View {
             } header: {
                 Text("Lock Screen")
             } footer: {
-                Text("Show class countdown on your Lock Screen and Dynamic Island. Starts automatically before your first class.")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
+                Text(
+                    "Show class countdown on your Lock Screen and Dynamic Island. Starts automatically before your first class."
+                )
+                .font(.footnote)
+                .foregroundColor(.secondary)
             }
 
             Section {

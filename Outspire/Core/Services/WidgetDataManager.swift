@@ -34,9 +34,15 @@ enum WidgetDataManager {
     }
 
     static func clearAll() {
-        let keys = ["widgetTimetable", "widgetAuthState", "widgetHolidayMode",
-                     "widgetHolidayHasEndDate", "widgetHolidayEndDate",
-                     "widgetTrack", "widgetEntryYear"]
+        let keys = [
+            "widgetTimetable",
+            "widgetAuthState",
+            "widgetHolidayMode",
+            "widgetHolidayHasEndDate",
+            "widgetHolidayEndDate",
+            "widgetTrack",
+            "widgetEntryYear"
+        ]
         keys.forEach { shared?.removeObject(forKey: $0) }
         WidgetCenter.shared.reloadAllTimelines()
     }

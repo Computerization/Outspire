@@ -30,7 +30,7 @@ final class AuthServiceV2: ObservableObject {
         // flashing the sign-in prompt while the network request completes.
         let hasCredentials = SecureStore.get(keyUsername) != nil
             && SecureStore.get(keyPassword) != nil
-        if hasSavedUser && hasCredentials {
+        if hasSavedUser, hasCredentials {
             self.isAuthenticated = true
             self.isResolvingSession = false
         }

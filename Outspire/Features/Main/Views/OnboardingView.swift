@@ -271,7 +271,6 @@ struct OnboardingView: View {
             withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                 currentPage += 1
             }
-
         }
     }
 

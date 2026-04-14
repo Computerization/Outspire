@@ -448,10 +448,14 @@ final class ClassActivityManager: ObservableObject {
                 if success {
                     self.hasRegistered = true
                     self.retryCount = 0
-                    Log.app.info("Registered with push worker (deviceId: \(PushRegistrationService.deviceId.prefix(8))...)")
+                    Log.app
+                        .info(
+                            "Registered with push worker (deviceId: \(PushRegistrationService.deviceId.prefix(8))...)"
+                        )
                 } else if self.retryCount < Self.maxRetries {
                     self.retryCount += 1
-                    Log.app.warning("Push worker registration failed, retrying (\(self.retryCount)/\(Self.maxRetries))...")
+                    Log.app
+                        .warning("Push worker registration failed, retrying (\(self.retryCount)/\(Self.maxRetries))...")
                     DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                         self.registerIfReady()
                     }
