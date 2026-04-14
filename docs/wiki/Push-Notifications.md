@@ -28,35 +28,9 @@
 
 ## APNs Push Worker
 
-Server-driven Live Activity updates via a Cloudflare Worker at `outspire-apns.wrye.dev`.
+Server-driven Live Activity updates via a Cloudflare Worker at `outspire-apns.wrye.dev`. Uses D1 (SQL database) for registrations and dispatch jobs, KV for caching external calendar/holiday data.
 
-### Architecture
-
-Two-phase system:
-
-1. **Daily Planner** (cron: CST 06:30) -- Pre-computes the entire day's push schedule into time-indexed KV dispatch slots
-2. **Per-Minute Dispatcher** (cron: CST 07:00-18:59) -- Reads one KV key per minute and fires pushes
-
-This is O(1) per minute regardless of user count.
-
-### Push Schedule per Day
-
-| Time | Event | Content State |
-|------|-------|---------------|
-| 30 min before first class | `start` | First class, status: `upcoming` |
-| Class start time | `update` | Current class, status: `ongoing` |
-| 5 min before class end | `update` | Current class, status: `ending` |
-| Class end time | `update` | Next class, status: `break` |
-| Last class end time | `end` | Dismisses Live Activity after 15 min |
-
-### Day Decision Logic
-
-For each user during daily planning:
-1. Check pause state (skip if paused; auto-resume if `resumeDate` reached)
-2. Check school calendar (semester range, special days, cancellations, makeup days)
-3. Check Chinese statutory holidays/workdays
-4. Check weekday (skip weekends unless makeup day)
-5. Build dispatch slots for normal school days
+For the full worker architecture (D1 schema, cron phases, APNs integration, state model), see [Push-Worker.md](Push-Worker.md).
 
 ### iOS Client Integration
 
@@ -99,16 +73,7 @@ RegisterPayload {
 
 ### Device Identity
 
-Each device generates a stable UUID on first launch, stored in Keychain (`SecureStore` key: `push_device_id`). This ID is used as the KV key for the Cloudflare Worker, so re-registrations overwrite the same record instead of creating duplicates.
-
-### KV Schema
-
-| Key Pattern | Contents | TTL |
-|-------------|----------|-----|
-| `reg:{deviceId}` | Registration (tokens, schedule, pause state) | 30 days |
-| `dispatch:{YYYY-MM-DD}:{HH:MM}` | Push jobs for that minute | ~20 hours |
-| `cache:school-cal:{year}` | School calendar JSON | 5 min |
-| `cache:holiday-cn:{year}` | Chinese holiday list | 1 hour |
+Each device generates a stable UUID on first launch, stored in Keychain (`SecureStore` key: `push_device_id`). This ID is the primary key in the worker's D1 `registrations` table, so re-registrations upsert the same row.
 
 ### Authentication
 
@@ -122,4 +87,4 @@ All mutating endpoints require `x-auth-secret` header matching the `APNS_AUTH_SE
 
 If offline at logout, the unregister is tombstoned and retried on next launch.
 
-For the full push worker architecture, see [docs/archive/apns-push-worker.md](../archive/apns-push-worker.md).
+For the full push worker architecture (D1 schema, cron phases, APNs integration), see [Push-Worker.md](Push-Worker.md).

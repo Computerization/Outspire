@@ -30,7 +30,8 @@ Outspire is an iOS/macOS campus companion app for WFLA (World Foreign Language A
 ### Infrastructure
 
 - [Widget & Live Activities](Widget-Live-Activities.md) -- Small widget, Live Activity, Dynamic Island
-- [Push Notifications](Push-Notifications.md) -- APNs worker, local reminders, registration
+- [Push Notifications](Push-Notifications.md) -- Local reminders, push registration (iOS side)
+- [Push Worker](Push-Worker.md) -- Cloudflare Worker, D1/KV storage, APNs dispatch, cron architecture
 - [Caching](Caching.md) -- Cache manager, TTLs, cleanup
 - [Design System](Design-System.md) -- Tokens, glassmorphic components, typography, gradients
 - [Configuration](Configuration.md) -- Feature flags, server URLs, secrets management
