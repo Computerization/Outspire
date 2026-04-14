@@ -1,43 +1,52 @@
-# This workflow will build a Swift project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
-
-name: Build & Test
+name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
-
-    runs-on: macos-latest
+  lint:
+    name: Lint
+    runs-on: macos-26
 
     steps:
-    - uses: actions/checkout@v4
-    # - name: Build
-    #   run: swift build --package-path Outspire.swiftpm
-    # - name: Run tests
-    #   run: swift test --package-path Outspire.swiftpm
-    
-    - name: Install SwiftLint and SwiftFormat
-      run: |
-        brew bundle --version || true
-        brew install swiftlint swiftformat
-    - name: Run SwiftFormat (lint only)
-      run: swiftformat --lint .
-    - name: Run SwiftLint
-      run: swiftlint
-    - name: Set up Xcode
-      run: sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
-    - name: List available simulators
-      run: xcrun simctl list devices
-    - name: Build & Test (Simulator)
-      run: |
-        xcodebuild \
-          -project Outspire.xcodeproj \
-          -scheme "Outspire" \
-          -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
-          -enableCodeCoverage YES \
-          clean test
+      - uses: actions/checkout@v4
+
+      - name: Install SwiftLint and SwiftFormat
+        run: brew install swiftlint swiftformat
+
+      - name: SwiftFormat
+        run: swiftformat --lint .
+
+      - name: SwiftLint
+        run: swiftlint
+
+  build-and-test:
+    name: Build & Test
+    runs-on: macos-26
+    needs: lint
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create local configuration
+        run: cp Outspire/Configurations.local.swift.example Outspire/Configurations.local.swift
+
+      - name: Select Xcode
+        run: sudo xcode-select --switch /Applications/Xcode_26.3.app/Contents/Developer
+
+      - name: Build & run unit tests
+        run: |
+          xcodebuild \
+            -project Outspire.xcodeproj \
+            -scheme "Outspire" \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+            -skipPackagePluginValidation \
+            -enableCodeCoverage YES \
+            test
