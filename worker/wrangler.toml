@@ -8,10 +8,10 @@ id = "a8ada3a1a83f412ba0c172ef0fb80c63"
 
 [triggers]
 # Daily planner: 22:30 UTC = 06:30 CST — builds one dispatch slot per user
-# Dispatch window: UTC 23:00–01:00 = CST 07:00–09:00
-# Covers 07:45 (cancelled events), 08:00 (normal start), plus 1h buffer
+# Dispatch window: UTC 23:00–09:59 = CST 07:00–17:59
+# Covers morning start (07:45/08:00) through last afternoon period (~17:30)
 # Cost: 1 KV read/min on non-school days (null → no-op)
-crons = ["30 22 * * *", "* 23 * * *", "* 0 * * *"]
+crons = ["30 22 * * *", "* 23 * * *", "* 0-9 * * *"]
 
 [vars]
 GITHUB_CALENDAR_URL = "https://raw.githubusercontent.com/Computerization/wfla-events/main"
