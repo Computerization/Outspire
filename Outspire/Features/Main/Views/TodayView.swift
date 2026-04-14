@@ -86,8 +86,11 @@ struct TodayView: View {
         .onChange(of: classtableViewModel.years) { _, years in
             handleYearsChange(years)
         }
+        .onChange(of: classtableViewModel.isLoadingYears) { _, _ in
+            syncLoadingState()
+        }
         .onChange(of: classtableViewModel.isLoadingTimetable) { _, isLoading in
-            self.isLoading = isLoading
+            self.isLoading = classtableViewModel.isLoadingYears || isLoading
         }
         .onChange(of: classtableViewModel.timetable) { _, timetable in
             classtableViewModel.startLiveActivityIfNeeded(timetable: timetable)
@@ -347,6 +350,8 @@ struct TodayView: View {
             }
         }
 
+        syncLoadingState()
+
         classtableViewModel.startTimer()
 
         animateCards = true
@@ -413,6 +418,8 @@ struct TodayView: View {
             // No animation when switching between views
             animateCards = true
         }
+
+        syncLoadingState()
     }
 
     private func isCurrentDateWeekend() -> Bool {
@@ -423,5 +430,9 @@ struct TodayView: View {
             let weekday = calendar.component(.weekday, from: currentTime)
             return weekday == 1 || weekday == 7
         }
+    }
+
+    private func syncLoadingState() {
+        isLoading = classtableViewModel.isLoadingYears || classtableViewModel.isLoadingTimetable
     }
 }
