@@ -146,7 +146,6 @@ Automatic reauthentication on 401, 302, or HTML responses.
 | `navigateToClassTable` | `Bool` | Navigate to timetable |
 | `navigateToClub` | `String?` | Club ID to open |
 | `navigateToAddActivity` | `String?` | Club ID for new activity |
-| `navigateToReflection` | `String?` | Reflection ID to open |
 
 | Method | Description |
 |--------|-------------|

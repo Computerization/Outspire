@@ -95,7 +95,6 @@ struct NavSplitView: View {
         .onChange(of: urlSchemeHandler.navigateToAddActivity) { _, clubId in
             if clubId != nil { selectedView = .clubActivities }
         }
-        .onChange(of: urlSchemeHandler.navigateToReflection) { _, _ in selectedView = .clubReflections }
         .id(refreshID)
         .task {
             checkOnboardingStatus()

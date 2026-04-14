@@ -19,7 +19,7 @@
 | Activities | "Activities" + sparkles icon | CAS views |
 | Explore | "Explore" + safari icon | `ExtraView` (quick links grid) |
 
-Each tab contains its own `NavigationStack` to preserve navigation state independently.
+Each tab contains its own `NavigationStack` to preserve navigation state independently. The Explore tab uses a `NavigationPath`-bound `NavigationStack` to support programmatic push navigation for deep links (e.g., `outspire://club/{id}` pushes `ClubInfoView` onto the Explore stack).
 
 ## iPad Navigation (DEAD CODE)
 
@@ -39,7 +39,6 @@ Each tab contains its own `NavigationStack` to preserve navigation state indepen
 | `outspire://classtable` | Navigate to timetable |
 | `outspire://club/{clubId}` | Open club info |
 | `outspire://addactivity/{clubId}` | Open add activity sheet for club |
-| `outspire://reflection/{reflectionId}` | Open specific reflection |
 
 ### Universal Links
 
@@ -69,10 +68,11 @@ URLSchemeHandler publishes navigation triggers as `@Published` properties:
 - `navigateToClassTable: Bool`
 - `navigateToClub: String?`
 - `navigateToAddActivity: String?`
-- `navigateToReflection: String?`
 - `closeAllSheets: Bool`
 
-Views observe these and respond accordingly. The handler includes:
+`RootTabView` observes these properties via `.onChange` and switches to the appropriate tab. For `navigateToClub`, it also programmatically pushes `ClubInfoView` onto the Explore tab's `NavigationPath`. Individual views (`ClubInfoView`, `ClubActivitiesView`, `TodayView`) respond to the relevant properties in `.onAppear`/`.onChange` to complete the navigation.
+
+The handler includes:
 - **Queued navigation** -- If app isn't ready, URL is queued and fired after 0.5s
 - **Reset-and-set pattern** -- Navigation flags reset before being set to detect same-destination re-navigation
 - **Sheet dismissal** -- `closeAllSheets` flag resets after 0.5s

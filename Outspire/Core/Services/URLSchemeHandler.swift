@@ -11,7 +11,6 @@ class URLSchemeHandler: ObservableObject {
     @Published var navigateToClassTable = false
     @Published var navigateToClub: String?
     @Published var navigateToAddActivity: String?
-    @Published var navigateToReflection: String?
 
     // Add a property to signal that sheets should be closed
     @Published var closeAllSheets = false

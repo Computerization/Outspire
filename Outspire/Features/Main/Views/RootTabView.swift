@@ -13,6 +13,9 @@ struct RootTabView: View {
     @State private var hasCheckedOnboarding = false
 
     enum MainTab: Hashable { case today, classtable, activities, search }
+    enum DeepLinkRoute: Hashable { case clubInfo }
+
+    @State private var explorePath = NavigationPath()
 
     var body: some View {
         Group {
@@ -35,6 +38,24 @@ struct RootTabView: View {
         }
         .task {
             checkOnboardingStatus()
+        }
+        .onChange(of: urlSchemeHandler.navigateToToday) { _, newValue in
+            if newValue { selectedTab = .today }
+        }
+        .onChange(of: urlSchemeHandler.navigateToClassTable) { _, newValue in
+            if newValue { selectedTab = .classtable }
+        }
+        .onChange(of: urlSchemeHandler.navigateToClub) { _, clubId in
+            if clubId != nil {
+                selectedTab = .search
+                explorePath = NavigationPath()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    explorePath.append(DeepLinkRoute.clubInfo)
+                }
+            }
+        }
+        .onChange(of: urlSchemeHandler.navigateToAddActivity) { _, clubId in
+            if clubId != nil { selectedTab = .activities }
         }
         .onReceive(
             NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
@@ -69,8 +90,14 @@ struct RootTabView: View {
             }
 
             Tab("Explore", systemImage: "square.grid.2x2", value: MainTab.search) {
-                NavigationStack {
+                NavigationStack(path: $explorePath) {
                     ExtraView()
+                        .navigationDestination(for: DeepLinkRoute.self) { route in
+                            switch route {
+                            case .clubInfo:
+                                ClubInfoView()
+                            }
+                        }
                 }
             }
         }
@@ -103,8 +130,14 @@ struct RootTabView: View {
             }
 
             Tab("Explore", systemImage: "square.grid.2x2", value: MainTab.search) {
-                NavigationStack {
+                NavigationStack(path: $explorePath) {
                     ExtraView()
+                        .navigationDestination(for: DeepLinkRoute.self) { route in
+                            switch route {
+                            case .clubInfo:
+                                ClubInfoView()
+                            }
+                        }
                 }
             }
         }
@@ -133,8 +166,14 @@ struct RootTabView: View {
             .tabItem { Label("Activities", systemImage: "checklist.checked") }
             .tag(MainTab.activities)
 
-            NavigationStack {
+            NavigationStack(path: $explorePath) {
                 ExtraView()
+                    .navigationDestination(for: DeepLinkRoute.self) { route in
+                        switch route {
+                        case .clubInfo:
+                            ClubInfoView()
+                        }
+                    }
             }
             .tabItem { Label("Explore", systemImage: "square.grid.2x2") }
             .tag(MainTab.search)

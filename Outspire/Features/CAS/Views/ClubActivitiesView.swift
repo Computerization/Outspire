@@ -81,6 +81,15 @@ struct ClubActivitiesView: View {
                 }
             }
         })
+        .onChange(of: urlSchemeHandler.navigateToAddActivity) { _, newClubId in
+            if let activityClubId = newClubId {
+                viewModel.setSelectedGroupById(activityClubId)
+                showingAddRecordSheet = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    urlSchemeHandler.navigateToAddActivity = nil
+                }
+            }
+        }
         .onChange(of: viewModel.isLoadingActivities) {
             handleLoadingChange()
         }

@@ -1,5 +1,20 @@
 # Documentation Changelog
 
+## 2026-04-14 (update 3)
+
+### Fixed
+- Deep link navigation in RootTabView -- all `outspire://` deep links now switch to the correct tab
+  - `outspire://today` and `outspire://classtable` switch tabs
+  - `outspire://club/{id}` switches to Explore tab and pushes ClubInfoView via NavigationPath
+  - `outspire://addactivity/{id}` switches to Activities tab
+- Added `.onChange` handler for `navigateToAddActivity` in ClubActivitiesView (previously only handled in `.onAppear`)
+- Removed dead `navigateToReflection` property from URLSchemeHandler (never set, no route, no view response)
+- Removed dead `.onChange(of: navigateToReflection)` from NavSplitView
+
+### Changed
+- Navigation-Deep-Linking.md updated to reflect working deep link flow and removed reflection route
+- Explore tab NavigationStack now uses NavigationPath for programmatic deep link navigation
+
 ## 2026-04-14 (update 2)
 
 ### Added
