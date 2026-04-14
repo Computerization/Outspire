@@ -6,17 +6,17 @@ struct MenuItemView: View {
     private var config: (title: String, icon: String, color: Color) {
         switch item {
         case .general:
-            return ("General", "switch.2", .gray)
+            ("General", "switch.2", .gray)
         case .notifications:
-            return ("Notifications", "bell.badge.fill", .red)
+            ("Notifications", "bell.badge.fill", .red)
         case .gradients:
-            return ("Visual", "paintpalette.fill", .purple)
+            ("Visual", "paintpalette.fill", .purple)
         case .license:
-            return ("Open Source Licenses", "doc.text.fill", .brown)
+            ("Open Source Licenses", "doc.text.fill", .brown)
         case .about:
-            return ("About Outspire", "star.fill", .blue)
+            ("About Outspire", "star.fill", .blue)
         default:
-            return ("", "", .gray)
+            ("", "", .gray)
         }
     }
 

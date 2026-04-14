@@ -12,7 +12,7 @@ class URLSchemeHandler: ObservableObject {
     @Published var navigateToClub: String?
     @Published var navigateToAddActivity: String?
 
-    // Add a property to signal that sheets should be closed
+    /// Add a property to signal that sheets should be closed
     @Published var closeAllSheets = false
 
     // Error alert control
@@ -79,7 +79,7 @@ class URLSchemeHandler: ObservableObject {
 
         // Create a navigation action to execute immediately or queue
         let navigationAction = { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
 
             // Signal that sheets should be closed when handling a URL
             self.closeAllSheets = true
@@ -199,7 +199,7 @@ class URLSchemeHandler: ObservableObject {
     }
 }
 
-// Extension to handle URL validation
+/// Extension to handle URL validation
 extension URLSchemeHandler {
     /// Creates a valid deep link URL for the app
     /// - Parameters:
@@ -220,7 +220,7 @@ extension URLSchemeHandler {
             components.path = "/\(pathParts[1])"
         }
 
-        if let queryItems = queryItems, !queryItems.isEmpty {
+        if let queryItems, !queryItems.isEmpty {
             components.queryItems = queryItems
         }
 
@@ -238,7 +238,7 @@ extension URLSchemeHandler {
         components.host = "outspire.wrye.dev"
         components.path = "/app/\(path)"
 
-        if let queryItems = queryItems, !queryItems.isEmpty {
+        if let queryItems, !queryItems.isEmpty {
             components.queryItems = queryItems
         }
 

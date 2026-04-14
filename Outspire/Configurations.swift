@@ -6,7 +6,7 @@ enum Configuration {
 
     static var hideAcademicScore: Bool {
         get {
-            return UserDefaults.standard.bool(forKey: "hideAcademicScore")
+            UserDefaults.standard.bool(forKey: "hideAcademicScore")
         }
         set {
             UserDefaults.standard.set(newValue, forKey: "hideAcademicScore")
@@ -15,7 +15,7 @@ enum Configuration {
 
     static var showMondayClass: Bool {
         get {
-            return UserDefaults.standard.object(forKey: "showMondayClass") as? Bool ?? true
+            UserDefaults.standard.object(forKey: "showMondayClass") as? Bool ?? true
         }
         set {
             UserDefaults.standard.set(newValue, forKey: "showMondayClass")
@@ -24,7 +24,7 @@ enum Configuration {
 
     static var showSecondsInLongCountdown: Bool {
         get {
-            return UserDefaults.standard.object(forKey: "showSecondsInLongCountdown") as? Bool
+            UserDefaults.standard.object(forKey: "showSecondsInLongCountdown") as? Bool
                 ?? false
         }
         set {
@@ -34,7 +34,7 @@ enum Configuration {
 
     static var showCountdownForFutureClasses: Bool {
         get {
-            return UserDefaults.standard.object(forKey: "showCountdownForFutureClasses") as? Bool
+            UserDefaults.standard.object(forKey: "showCountdownForFutureClasses") as? Bool
                 ?? false
         }
         set {
@@ -54,7 +54,7 @@ enum Configuration {
 
     static var setAsToday: Bool {
         get {
-            return UserDefaults.standard.bool(forKey: "setAsToday")
+            UserDefaults.standard.bool(forKey: "setAsToday")
         }
         set {
             UserDefaults.standard.set(newValue, forKey: "setAsToday")
@@ -63,16 +63,16 @@ enum Configuration {
 
     static var lastAppLaunchDate: Date? {
         get {
-            return UserDefaults.standard.object(forKey: "lastAppLaunchDate") as? Date
+            UserDefaults.standard.object(forKey: "lastAppLaunchDate") as? Date
         }
         set {
             UserDefaults.standard.set(newValue, forKey: "lastAppLaunchDate")
         }
     }
 
-    // Base URL for TSIMS v2 server
+    /// Base URL for TSIMS v2 server
     static var tsimsV2BaseURL: String {
-        return "http://101.227.232.33:8001"
+        "http://101.227.232.33:8001"
     }
 
     static var headers: [String: String] = [
@@ -81,11 +81,13 @@ enum Configuration {
 
     // MARK: - LLM configuration
 
-    static var llmModel: String { "grok/grok-3-latest" }
+    static var llmModel: String {
+        "grok/grok-3-latest"
+    }
 
     static var isHolidayMode: Bool {
         get {
-            return UserDefaults.standard.bool(forKey: "isHolidayMode")
+            UserDefaults.standard.bool(forKey: "isHolidayMode")
         }
         set {
             UserDefaults.standard.set(newValue, forKey: "isHolidayMode")
@@ -100,7 +102,7 @@ enum Configuration {
 
     static var holidayHasEndDate: Bool {
         get {
-            return UserDefaults.standard.bool(forKey: "holidayHasEndDate")
+            UserDefaults.standard.bool(forKey: "holidayHasEndDate")
         }
         set {
             UserDefaults.standard.set(newValue, forKey: "holidayHasEndDate")
@@ -110,7 +112,7 @@ enum Configuration {
 
     static var holidayEndDate: Date {
         get {
-            return UserDefaults.standard.object(forKey: "holidayEndDate") as? Date
+            UserDefaults.standard.object(forKey: "holidayEndDate") as? Date
                 ?? Date().addingTimeInterval(86400)
         }
         set {

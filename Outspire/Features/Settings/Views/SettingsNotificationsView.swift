@@ -75,21 +75,21 @@ struct SettingsNotificationsView: View {
         }
     }
 
-    // Check the current notification permission status
+    /// Check the current notification permission status
     private func checkNotificationPermission() {
         NotificationManager.shared.checkAuthorizationStatus { status in
             self.notificationStatus = status
         }
     }
 
-    // Helper to open the app's settings in iOS Settings
+    /// Helper to open the app's settings in iOS Settings
     private func openSettings() {
         if let url = URL(string: UIApplication.openSettingsURLString) {
             UIApplication.shared.open(url)
         }
     }
 
-    // Format the notification status as text
+    /// Format the notification status as text
     private var notificationStatusText: String {
         switch notificationStatus {
         case .authorized:
@@ -107,7 +107,7 @@ struct SettingsNotificationsView: View {
         }
     }
 
-    // Color coding for the permission status
+    /// Color coding for the permission status
     private var notificationStatusColor: Color {
         switch notificationStatus {
         case .authorized, .provisional, .ephemeral:

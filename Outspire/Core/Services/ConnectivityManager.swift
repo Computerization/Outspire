@@ -11,10 +11,10 @@ class ConnectivityManager: ObservableObject {
     @Published var isInternetAvailable = true
     @Published var isCheckingConnectivity = false
 
-    // Alert control
+    /// Alert control
     @Published var showNoInternetAlert = false
 
-    // Onboarding awareness
+    /// Onboarding awareness
     private var isOnboardingActive = false
 
     // Private state
@@ -26,7 +26,7 @@ class ConnectivityManager: ObservableObject {
     private let checkInterval: TimeInterval = 300 // 5 minutes
     private let timeoutInterval: TimeInterval = 5.0
 
-    // State tracking
+    /// State tracking
     private var serverAccessible = true
 
     private init() {
@@ -53,7 +53,7 @@ class ConnectivityManager: ObservableObject {
     }
 
     func isInOnboarding() -> Bool {
-        return isOnboardingActive
+        isOnboardingActive
     }
 
     // MARK: - Public Methods
@@ -101,7 +101,7 @@ class ConnectivityManager: ObservableObject {
                 if path.status == .satisfied {
                     self?.checkConnectivity()
                 } else {
-                    if let self = self, !self.isOnboardingActive {
+                    if let self, !self.isOnboardingActive {
                         self.showNoInternetAlert = true
                     }
                 }
@@ -134,7 +134,7 @@ class ConnectivityManager: ObservableObject {
 
         let task = URLSession.shared.dataTask(with: request) { _, response, error in
             DispatchQueue.main.async {
-                if let error = error {
+                if let error {
                     Log.net
                         .error(
                             "Server check failed: \(urlString, privacy: .public), error: \(error.localizedDescription, privacy: .public)"

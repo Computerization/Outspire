@@ -10,7 +10,7 @@ struct OnboardingView: View {
 
     @State private var liveActivityEnabled = true
 
-    // Focus state for keyboard controls
+    /// Focus state for keyboard controls
     @FocusState private var buttonFocused: OnboardingButtonFocus?
 
     private let pages: [OnboardingPage] = [
@@ -117,7 +117,8 @@ struct OnboardingView: View {
                         Circle()
                             .frame(width: 8, height: 8)
                             .foregroundColor(
-                                index == currentPage ? .accentColor : .gray.opacity(0.3))
+                                index == currentPage ? .accentColor : .gray.opacity(0.3)
+                            )
                     }
                 }
                 .padding(.vertical, 20)
@@ -157,7 +158,8 @@ struct OnboardingView: View {
                             Text(currentPage < pages.count - 1 ? "Next" : "Get Started")
                             Image(
                                 systemName: currentPage < pages.count - 1
-                                    ? "chevron.right" : "checkmark.circle")
+                                    ? "chevron.right" : "checkmark.circle"
+                            )
                         }
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
@@ -202,7 +204,7 @@ struct OnboardingView: View {
             ConnectivityManager.shared.setOnboardingActive(false)
         }
         .onChange(of: isPresented) { _, newValue in
-            if !newValue && !hasAppeared {
+            if !newValue, !hasAppeared {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     if !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
                         isPresented = true
@@ -235,7 +237,7 @@ struct OnboardingView: View {
         }
     }
 
-    // Handle next button action based on current page type
+    /// Handle next button action based on current page type
     private func handleNextAction() {
         let currentPageInfo = pages[currentPage]
 
@@ -284,7 +286,6 @@ struct OnboardingView: View {
         }
     }
 
-    @ViewBuilder
     func standardPageView(for page: OnboardingPage) -> some View {
         VStack(spacing: 30) {
             Image(systemName: page.imageName)
@@ -297,7 +298,8 @@ struct OnboardingView: View {
                         .frame(width: 140, height: 140)
                 )
                 .scaleEffect(
-                    currentPage == pages.firstIndex(where: { $0.title == page.title }) ? 1.0 : 0.8)
+                    currentPage == pages.firstIndex(where: { $0.title == page.title }) ? 1.0 : 0.8
+                )
 
             Text(page.title)
                 .font(.largeTitle)
@@ -318,7 +320,6 @@ struct OnboardingView: View {
         .padding()
     }
 
-    @ViewBuilder
     func liveActivityPageView(for page: OnboardingPage) -> some View {
         VStack(spacing: 30) {
             ZStack {
@@ -393,7 +394,7 @@ struct OnboardingView: View {
     }
 }
 
-// Updated OnboardingPage struct with page type
+/// Updated OnboardingPage struct with page type
 struct OnboardingPage {
     let title: String
     let description: String
@@ -401,7 +402,7 @@ struct OnboardingPage {
     let imageColor: Color
     let pageType: OnboardingPageType
 
-    // Default to information type for backward compatibility
+    /// Default to information type for backward compatibility
     init(
         title: String, description: String, imageName: String, imageColor: Color,
         pageType: OnboardingPageType = .information
@@ -414,13 +415,13 @@ struct OnboardingPage {
     }
 }
 
-// Page type to distinguish between information and permission pages
+/// Page type to distinguish between information and permission pages
 enum OnboardingPageType {
     case information
     case liveActivityPermission
 }
 
-// Enum for focus management
+/// Enum for focus management
 enum OnboardingButtonFocus {
     case previous, next, close
 }

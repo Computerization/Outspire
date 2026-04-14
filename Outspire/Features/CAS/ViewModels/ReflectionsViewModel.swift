@@ -7,8 +7,8 @@ enum ReflectionGroup: Identifiable, Hashable {
 
     var id: String {
         switch self {
-        case let .club(group): return group.C_GroupsID
-        case let .noGroup(group): return group.C_GroupsID
+        case let .club(group): group.C_GroupsID
+        case let .noGroup(group): group.C_GroupsID
         }
     }
 
@@ -16,15 +16,15 @@ enum ReflectionGroup: Identifiable, Hashable {
         switch self {
         case let .club(group):
             if !group.C_NameE.isEmpty {
-                return group.C_NameE
+                group.C_NameE
             } else {
-                return group.C_NameC
+                group.C_NameC
             }
         case let .noGroup(group):
             if !group.C_NameE.isEmpty {
-                return group.C_NameE
+                group.C_NameE
             } else {
-                return group.C_NameC
+                group.C_NameC
             }
         }
     }
@@ -103,7 +103,7 @@ class ReflectionsViewModel: ObservableObject {
         }
     }
 
-    // Map GroupNo -> numeric Id using cached group list; prime cache if needed
+    /// Map GroupNo -> numeric Id using cached group list; prime cache if needed
     private func resolveNumericGroupId(_ idOrNo: String, completion: @escaping (String) -> Void) {
         guard !idOrNo.isEmpty else { completion(""); return }
         if let detail = CASServiceV2.shared.getCachedGroupDetails(idOrNo: idOrNo), let nid = detail.Id {

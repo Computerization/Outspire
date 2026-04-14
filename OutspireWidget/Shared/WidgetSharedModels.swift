@@ -1,7 +1,10 @@
 import Foundation
 
 struct ScheduledClass: Codable, Hashable, Identifiable {
-    var id: Int { periodNumber }
+    var id: Int {
+        periodNumber
+    }
+
     let periodNumber: Int
     let className: String
     let roomNumber: String

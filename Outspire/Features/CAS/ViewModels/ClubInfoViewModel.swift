@@ -56,7 +56,7 @@ class ClubInfoViewModel: ObservableObject {
 
         let cat = (category.C_CategoryID == "0" || category.C_CategoryID.isEmpty) ? nil : category.C_CategoryID
         CASServiceV2.shared.fetchGroupList(pageIndex: 1, pageSize: 200, categoryId: cat) { [weak self] result in
-            guard let self = self else { return }
+            guard let self else { return }
             self.isLoading = false
 
             switch result {
@@ -181,7 +181,7 @@ class ClubInfoViewModel: ObservableObject {
         // Determine membership by checking MyGroups (match by Id or GroupNo)
         loadGroup.enter()
         CASServiceV2.shared.fetchMyGroups { [weak self] res in
-            guard let self = self else { return }
+            guard let self else { return }
             switch res {
             case let .success(myGroups):
                 let targetKeys = Set([group.C_GroupsID, group.C_GroupNo].filter { !$0.isEmpty })
@@ -214,7 +214,7 @@ class ClubInfoViewModel: ObservableObject {
             }
 
             CASServiceV2.shared.fetchGroupDetail(groupId: identifiers[index]) { [weak self] res in
-                guard let self = self else { return }
+                guard let self else { return }
 
                 switch res {
                 case let .success(parsed):
@@ -247,7 +247,7 @@ class ClubInfoViewModel: ObservableObject {
         loadGroupDetail(using: detailIdentifiers)
 
         loadGroup.notify(queue: .main) { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 self.isLoading = false
                 self.isFromURLNavigation = false
@@ -257,7 +257,7 @@ class ClubInfoViewModel: ObservableObject {
 
     private func retryFetchWithSession(parameters: [String: String]) { /* no-op in V2 */ }
 
-    // Check if current user is a member of this club
+    /// Check if current user is a member of this club
     private func checkUserMembership() {
         guard authV2.isAuthenticated,
               let currentUserId = authV2.user?.userCode
@@ -287,7 +287,7 @@ class ClubInfoViewModel: ObservableObject {
         isJoiningClub = true
 
         CASServiceV2.shared.joinGroup(groupId: currentGroup.C_GroupsID, isProject: asProject) { [weak self] result in
-            guard let self = self else { return }
+            guard let self else { return }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.isJoiningClub = false
@@ -323,7 +323,7 @@ class ClubInfoViewModel: ObservableObject {
         isExitingClub = true
 
         CASServiceV2.shared.exitGroup(groupId: currentGroup.C_GroupsID) { [weak self] result in
-            guard let self = self else { return }
+            guard let self else { return }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.isExitingClub = false
@@ -369,7 +369,7 @@ class ClubInfoViewModel: ObservableObject {
         }
     }
 
-    // Add a method to handle URL navigation requests
+    /// Add a method to handle URL navigation requests
     func navigateToClubById(_ clubId: String) {
         print("Navigating to club ID: \(clubId)")
 
@@ -384,7 +384,7 @@ class ClubInfoViewModel: ObservableObject {
 
         // Use V2 group list to find the group quickly
         CASServiceV2.shared.fetchGroupList(pageIndex: 1, pageSize: 200, categoryId: nil) { [weak self] res in
-            guard let self = self else { return }
+            guard let self else { return }
             DispatchQueue.main.async {
                 switch res {
                 case let .success(list):
@@ -407,7 +407,7 @@ class ClubInfoViewModel: ObservableObject {
         errorMessage = nil
 
         CASServiceV2.shared.fetchGroupList(pageIndex: 1, pageSize: 200, categoryId: nil) { [weak self] res in
-            guard let self = self else { return }
+            guard let self else { return }
             DispatchQueue.main.async {
                 switch res {
                 case let .success(list):
@@ -426,11 +426,11 @@ class ClubInfoViewModel: ObservableObject {
         }
     }
 
-    // Helper method to fetch groups for a category with a preselected club
+    /// Helper method to fetch groups for a category with a preselected club
     private func fetchGroupsForCategory(_ category: Category, preselectedGroupId: String) {
         CASServiceV2.shared
             .fetchGroupList(pageIndex: 1, pageSize: 200, categoryId: category.C_CategoryID) { [weak self] result in
-                guard let self = self else { return }
+                guard let self else { return }
 
                 DispatchQueue.main.async {
                     switch result {
@@ -452,7 +452,7 @@ class ClubInfoViewModel: ObservableObject {
             }
     }
 
-    // Helper to fetch categories with a preselection
+    /// Helper to fetch categories with a preselection
     private func fetchCategoriesWithPreselection(clubId: String, categoryId: String?) {
         // In V2, categories are static
         self.categories = [
@@ -463,7 +463,7 @@ class ClubInfoViewModel: ObservableObject {
             Category(C_CategoryID: "5", C_Category: "Academic"),
             Category(C_CategoryID: "6", C_Category: "Personal")
         ]
-        if let categoryId = categoryId,
+        if let categoryId,
            let category = self.categories.first(where: { $0.C_CategoryID == categoryId })
         {
             self.selectedCategory = category
@@ -471,7 +471,7 @@ class ClubInfoViewModel: ObservableObject {
         }
     }
 
-    // Fallback method to search for a club across all categories
+    /// Fallback method to search for a club across all categories
     private func searchClubInCategories(clubId: String) {
         guard !categories.isEmpty else {
             // Can't search without categories

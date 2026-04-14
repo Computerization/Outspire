@@ -149,7 +149,7 @@ struct SchoolArrangementDetailView: View {
     }
 }
 
-// Simple thumbnail for the image list
+/// Simple thumbnail for the image list
 struct ImageThumbnail: View {
     let url: URL
     @State private var loadFailed = false
@@ -217,7 +217,7 @@ struct ImageThumbnail: View {
     }
 }
 
-// Update the ImageViewer to handle URL creation errors
+/// Update the ImageViewer to handle URL creation errors
 struct ImageViewer: View {
     let imageUrl: String
     let title: String

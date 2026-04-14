@@ -94,7 +94,7 @@ struct ClubActivitiesView: View {
             handleLoadingChange()
         }
         .onChange(of: viewModel.errorMessage) { _, errorMessage in
-            if let errorMessage = errorMessage {
+            if let errorMessage {
                 HapticManager.shared.playError()
                 let icon =
                     errorMessage.contains("copied")
@@ -133,7 +133,6 @@ struct ClubActivitiesView: View {
         .refreshable(action: handleRefresh)
     }
 
-    @ViewBuilder
     private var addRecordSheet: some View {
         AddRecordSheet(
             availableGroups: viewModel.groups,
@@ -212,7 +211,7 @@ struct ClubActivitiesView: View {
         }
     }
 
-    // Add method to update gradient for activities
+    /// Add method to update gradient for activities
     private func updateGradientForClubActivities() {
         #if !targetEnvironment(macCatalyst)
             gradientManager.updateGradientForView(.clubActivities, colorScheme: colorScheme)

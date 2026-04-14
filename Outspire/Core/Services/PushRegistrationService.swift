@@ -182,9 +182,9 @@ enum PushRegistrationService {
 
     // MARK: - Private
 
-    private static func post<T: Encodable>(
+    private static func post(
         endpoint: String,
-        body: T,
+        body: some Encodable,
         completion: ((Bool) -> Void)? = nil
     ) {
         guard let url = URL(string: workerBaseURL + endpoint) else {

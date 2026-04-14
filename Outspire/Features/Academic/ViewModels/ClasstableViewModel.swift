@@ -148,7 +148,7 @@ class ClasstableViewModel: ObservableObject {
         errorMessage = nil
 
         TimetableServiceV2.shared.fetchYearOptions { [weak self] result in
-            guard let self = self else { return }
+            guard let self else { return }
             DispatchQueue.main.async {
                 self.isLoadingYears = false
                 switch result {
@@ -193,7 +193,7 @@ class ClasstableViewModel: ObservableObject {
                 sid = AuthServiceV2.shared.user?.userId.map(String.init)
                 TimetableServiceV2.shared
                     .fetchTimetable(yearId: self.selectedYearId, studentId: sid) { [weak self] result in
-                        guard let self = self else { return }
+                        guard let self else { return }
                         DispatchQueue.main.async {
                             self.isLoadingTimetable = false
                             self.isUsingCachedData = false
@@ -212,7 +212,7 @@ class ClasstableViewModel: ObservableObject {
             return
         }
         TimetableServiceV2.shared.fetchTimetable(yearId: selectedYearId, studentId: sid) { [weak self] result in
-            guard let self = self else { return }
+            guard let self else { return }
             DispatchQueue.main.async {
                 self.isLoadingTimetable = false
                 self.isUsingCachedData = false
@@ -240,8 +240,8 @@ class ClasstableViewModel: ObservableObject {
         }
 
         // Determine maximum period count from configured periods (fallback to items)
-        let configuredMax = ClassPeriodsManager.shared.classPeriods.map { $0.number }.max() ?? 9
-        let itemsMax = items.map { $0.period }.max() ?? configuredMax
+        let configuredMax = ClassPeriodsManager.shared.classPeriods.map(\.number).max() ?? 9
+        let itemsMax = items.map(\.period).max() ?? configuredMax
         let maxPeriod = max(configuredMax, itemsMax)
 
         var grid: [[String]] = []
@@ -474,7 +474,7 @@ class ClasstableViewModel: ObservableObject {
                     )
                 }
             } else {
-                let allPeriods = ClassPeriodsManager.shared.classPeriods.map { $0.number }
+                let allPeriods = ClassPeriodsManager.shared.classPeriods.map(\.number)
                 for p in allPeriods where p >= startPeriod.number {
                     if let raw = dataFor(periodNumber: p) {
                         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -538,10 +538,10 @@ class ClasstableViewModel: ObservableObject {
 
     func checkForClassTransition() -> Bool {
         if let upcoming = upcomingClassInfo,
-           upcoming.isForToday && upcoming.period.isCurrentlyActive()
+           upcoming.isForToday, upcoming.period.isCurrentlyActive()
         {
             let secondsRemaining = upcoming.period.endTime.timeIntervalSince(Date())
-            if secondsRemaining <= 5 && secondsRemaining > 0 {
+            if secondsRemaining <= 5, secondsRemaining > 0 {
                 return true
             }
         }

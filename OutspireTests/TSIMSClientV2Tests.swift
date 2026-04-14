@@ -7,8 +7,13 @@ private class TSIMSMockURLProtocol: URLProtocol {
     static var responseHeaders: [String: String]? = ["Content-Type": "application/json"]
     static var error: Error?
 
-    override class func canInit(with request: URLRequest) -> Bool { true }
-    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+    override class func canInit(with request: URLRequest) -> Bool {
+        true
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        request
+    }
 
     override func startLoading() {
         if let error = TSIMSMockURLProtocol.error {

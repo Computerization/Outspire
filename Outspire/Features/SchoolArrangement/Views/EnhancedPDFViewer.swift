@@ -16,7 +16,7 @@ struct EnhancedPDFViewer: View {
     @State private var isShowingControls = true
     @State private var animateIn = false
 
-    // Detect if device is iPad
+    /// Detect if device is iPad
     private var isIpad: Bool {
         UIDevice.current.userInterfaceIdiom == .pad
     }
@@ -192,7 +192,7 @@ struct EnhancedPDFViewer: View {
     }
 }
 
-// PDF view wrapper using PDFKit
+/// PDF view wrapper using PDFKit
 struct PDFKitView: UIViewRepresentable {
     let url: URL
 

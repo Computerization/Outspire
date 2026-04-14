@@ -1,6 +1,6 @@
 import SwiftUI
 
-// Custom Environment Key for tracking setAsToday state
+/// Custom Environment Key for tracking setAsToday state
 struct SetAsTodayKey: EnvironmentKey {
     static let defaultValue: Binding<Bool> = .constant(false)
 }

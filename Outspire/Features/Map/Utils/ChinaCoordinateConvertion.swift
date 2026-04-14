@@ -1,6 +1,6 @@
 import CoreLocation
 
-// GCJ-02 conversion functions
+/// GCJ-02 conversion functions
 enum CoordinateConverter {
     static let a = 6_378_245.0
     static let ee = 0.00669342162296594323
@@ -79,6 +79,6 @@ enum CoordinateConverter {
 
     static func isInChinaBounds(lat: Double, lon: Double) -> Bool {
         // Rough bounding box for China
-        return lon >= 72.004 && lon <= 135.05 && lat >= 3.86 && lat <= 53.55
+        lon >= 72.004 && lon <= 135.05 && lat >= 3.86 && lat <= 53.55
     }
 }

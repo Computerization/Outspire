@@ -93,7 +93,7 @@ class CaptchaRecognizer {
 
         // Alternative approach using Core Image
         let ciImage = CIImage(data: data)
-        if let ciImage = ciImage {
+        if let ciImage {
             let context = CIContext()
             return context.createCGImage(ciImage, from: ciImage.extent)
         }
@@ -240,11 +240,9 @@ class CaptchaRecognizer {
         }
 
         // 3. Fall back to any reasonable result
-        let anyValid = results.compactMap { result -> String? in
+        return results.compactMap { result -> String? in
             let filtered = result.filter { $0.isLetter || $0.isNumber }
             return filtered.isEmpty ? nil : String(filtered.prefix(4))
         }.first
-
-        return anyValid
     }
 }

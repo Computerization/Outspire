@@ -69,7 +69,7 @@ struct ReflectionsView: View {
             handleLoadingChange()
         }
         .onChange(of: viewModel.errorMessage) { _, errorMessage in
-            if let errorMessage = errorMessage {
+            if let errorMessage {
                 HapticManager.shared.playError()
                 let icon =
                     errorMessage.contains("copied")
@@ -97,7 +97,6 @@ struct ReflectionsView: View {
         .refreshable(action: handleRefresh)
     }
 
-    @ViewBuilder
     private var addReflectionSheet: some View {
         AddReflectionSheet(
             availableGroups: viewModel.groups,
@@ -362,7 +361,7 @@ struct ReflectionEmptyStateView: View {
     }
 }
 
-private extension Optional where Wrapped == String {
+private extension String? {
     var isNilOrEmpty: Bool {
         self?.isEmpty ?? true
     }

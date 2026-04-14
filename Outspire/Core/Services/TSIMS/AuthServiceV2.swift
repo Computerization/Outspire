@@ -75,7 +75,7 @@ final class AuthServiceV2: ObservableObject {
         }
     }
 
-    // Classification for detailed refresh outcomes
+    /// Classification for detailed refresh outcomes
     enum RefreshResult {
         case valid
         case reauthed
@@ -96,7 +96,7 @@ final class AuthServiceV2: ObservableObject {
         URLSession.shared.dataTask(with: seedReq) { _, _, _ in
             if Configuration.debugNetworkLogging {
                 if let url = seedReq.url, let cookies = HTTPCookieStorage.shared.cookies(for: url) {
-                    print("[AuthV2] Seed cookies: \(cookies.map { $0.name }.joined(separator: ", "))")
+                    print("[AuthV2] Seed cookies: \(cookies.map(\.name).joined(separator: ", "))")
                 }
             }
             // Step 2: POST credentials
@@ -188,7 +188,7 @@ final class AuthServiceV2: ObservableObject {
         PushRegistrationService.unregister()
     }
 
-    // Fetch profile HTML and parse basic info if missing from login response
+    /// Fetch profile HTML and parse basic info if missing from login response
     private func fetchProfile(completion: @escaping (Bool) -> Void) {
         // Try an HTML page that contains student info
         guard let url = URL(string: Configuration.tsimsV2BaseURL + "/Home/StudentInfo")
@@ -197,7 +197,7 @@ final class AuthServiceV2: ObservableObject {
         req.httpMethod = "GET"
         req.httpShouldHandleCookies = true
         URLSession.shared.dataTask(with: req) { data, _, error in
-            guard error == nil, let data = data,
+            guard error == nil, let data,
                   let html = String(data: data, encoding: .utf8)
             else { DispatchQueue.main.async { completion(false) }; return }
             // Parse using SwiftSoup to be resilient
@@ -289,7 +289,7 @@ final class AuthServiceV2: ObservableObject {
         stopKeepAlive()
         // Ping every 20 minutes to refresh session before 30-minute expiry
         keepAliveTimer = Timer.scheduledTimer(withTimeInterval: 20 * 60, repeats: true) { [weak self] _ in
-            guard let self = self else { return }
+            guard let self else { return }
             self.verifySession { ok in
                 if !ok {
                     self.attemptReauthIfPossible()
@@ -426,7 +426,7 @@ final class AuthServiceV2: ObservableObject {
         }
     }
 
-    // Public helper to refresh profile (to resolve userId after login)
+    /// Public helper to refresh profile (to resolve userId after login)
     func ensureProfile(completion: @escaping (Bool) -> Void) {
         fetchProfile { ok in
             completion(ok)

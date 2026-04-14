@@ -65,7 +65,7 @@ public class ClassPeriodsManager {
         useEffectiveDate: Bool = false,
         effectiveDate: Date? = nil
     ) -> (period: ClassPeriod?, isCurrentlyActive: Bool) {
-        if useEffectiveDate, let effectiveDate = effectiveDate {
+        if useEffectiveDate, let effectiveDate {
             let calendar = Calendar.current
             let effectiveTime = calendar.dateComponents([.hour, .minute, .second], from: Date())
             let effectiveDay = calendar.dateComponents([.year, .month, .day], from: effectiveDate)
@@ -117,12 +117,12 @@ public class ClassPeriodsManager {
 
     public func getMaxPeriodsByWeekday(_ weekday: Int) -> Int {
         switch weekday {
-        case 2: return 9 // Monday
-        case 3: return 9 // Tuesday
-        case 4: return 9 // Wednesday
-        case 5: return 9 // Thursday
-        case 6: return 9 // Friday
-        default: return 0 // Weekend
+        case 2: 9 // Monday
+        case 3: 9 // Tuesday
+        case 4: 9 // Wednesday
+        case 5: 9 // Thursday
+        case 6: 9 // Friday
+        default: 0 // Weekend
         }
     }
 

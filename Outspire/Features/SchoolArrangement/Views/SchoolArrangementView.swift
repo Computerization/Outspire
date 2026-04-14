@@ -1,6 +1,5 @@
-import SwiftUI
-
 import QuickLook
+import SwiftUI
 
 // Removed ColorfulX usage in favor of system materials
 import Toasts
@@ -15,9 +14,9 @@ struct SchoolArrangementView: View {
     @State private var showDetailSheet = false
     @State private var hasFirstAppeared = false
 
-    // Track content status
+    /// Track content status
     private var isEmptyState: Bool {
-        return filteredGroups.isEmpty && !viewModel.isLoading
+        filteredGroups.isEmpty && !viewModel.isLoading
     }
 
     // Device adaptive settings
@@ -26,9 +25,9 @@ struct SchoolArrangementView: View {
 
     private var filteredGroups: [ArrangementGroup] {
         if searchText.isEmpty {
-            return viewModel.arrangementGroups
+            viewModel.arrangementGroups
         } else {
-            return viewModel.arrangementGroups.compactMap { group in
+            viewModel.arrangementGroups.compactMap { group in
                 let filteredItems = group.items.filter { item in
                     item.title.localizedCaseInsensitiveContains(searchText) ||
                         item.weekNumbers.contains(where: { String($0).contains(searchText) })
@@ -55,7 +54,7 @@ struct SchoolArrangementView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if viewModel.isLoading && viewModel.arrangements.isEmpty {
+                if viewModel.isLoading, viewModel.arrangements.isEmpty {
                     loadingView
                 } else if isEmptyState {
                     emptyStateView
@@ -164,7 +163,7 @@ struct SchoolArrangementView: View {
                 .id(group.id)
             }
 
-            if viewModel.currentPage < viewModel.totalPages && !viewModel.isLoading {
+            if viewModel.currentPage < viewModel.totalPages, !viewModel.isLoading {
                 loadMoreRow
             }
         }
@@ -194,7 +193,7 @@ struct SchoolArrangementView: View {
 
     // MARK: - Helper Methods
 
-    // Modern collapsible section header for List/Section
+    /// Modern collapsible section header for List/Section
     private struct CollapsibleSectionHeader: View {
         let title: String
         let isExpanded: Bool
@@ -217,7 +216,7 @@ struct SchoolArrangementView: View {
         }
     }
 
-    // List row using DisclosureGroup to expand details
+    /// List row using DisclosureGroup to expand details
     private struct ArrangementItemRow: View {
         let item: SchoolArrangementItem
         let onToggle: () -> Void
@@ -294,7 +293,7 @@ struct SchoolArrangementView: View {
         }
     }
 
-    // Add the detail sheet content
+    /// Add the detail sheet content
     private var detailSheetContent: some View {
         Group {
             if let pdfURL = viewModel.pdfURL {
@@ -333,7 +332,7 @@ struct SchoolArrangementView: View {
                 .onAppear {
                     // Auto-dismiss if no data loaded after a timeout
                     DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                        if viewModel.pdfURL == nil && !viewModel.isLoadingDetail {
+                        if viewModel.pdfURL == nil, !viewModel.isLoadingDetail {
                             showDetailSheet = false
                             viewModel.errorMessage = "Failed to load content"
                         }
@@ -343,7 +342,7 @@ struct SchoolArrangementView: View {
         }
     }
 
-    // Add method to update gradient for school arrangements
+    /// Add method to update gradient for school arrangements
     private func updateGradientForSchoolArrangements() {
         #if !targetEnvironment(macCatalyst)
             gradientManager.updateGradientForView(.schoolArrangements, colorScheme: colorScheme)
@@ -357,10 +356,10 @@ struct SchoolArrangementView: View {
     }
 }
 
-// Helper extension for conditional modifiers
+/// Helper extension for conditional modifiers
 extension View {
     @ViewBuilder
-    func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+    func `if`(_ condition: Bool, transform: (Self) -> some View) -> some View {
         if condition {
             transform(self)
         } else {

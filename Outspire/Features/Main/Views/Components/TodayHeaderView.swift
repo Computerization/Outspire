@@ -44,7 +44,7 @@ struct TodayHeaderView: View {
                     .font(AppText.meta)
                     .foregroundStyle(.blue)
             }
-        } else if isHolidayActive && holidayHasEndDate {
+        } else if isHolidayActive, holidayHasEndDate {
             HStack {
                 Image(systemName: "sun.max.fill")
                     .foregroundStyle(.orange)
@@ -60,8 +60,6 @@ struct TodayHeaderView: View {
                     .font(AppText.meta)
                     .foregroundStyle(.orange)
             }
-        } else {
-            EmptyView()
         }
     }
 }

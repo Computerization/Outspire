@@ -47,7 +47,7 @@ class CacheManager {
         NotificationCenter.default.post(name: Notification.Name("ClearCachedFormData"), object: nil)
     }
 
-    // Clear only club activities related cache
+    /// Clear only club activities related cache
     static func clearClubActivitiesCache() {
         let userDefaults = UserDefaults.standard
 
@@ -63,7 +63,7 @@ class CacheManager {
         }
     }
 
-    // Clear only academic scores related cache
+    /// Clear only academic scores related cache
     static func clearAcademicScoresCache() {
         let userDefaults = UserDefaults.standard
 
@@ -80,7 +80,7 @@ class CacheManager {
         }
     }
 
-    // Clear only classtable related cache
+    /// Clear only classtable related cache
     static func clearClasstableCache() {
         let userDefaults = UserDefaults.standard
 
@@ -97,7 +97,7 @@ class CacheManager {
         }
     }
 
-    // Clear school arrangements cache
+    /// Clear school arrangements cache
     static func clearSchoolArrangementsCache() {
         let userDefaults = UserDefaults.standard
 
@@ -139,7 +139,8 @@ class CacheManager {
 
         // Check school arrangements cache (24 hours)
         let arrangementsTimestamp = userDefaults.double(
-            forKey: "cachedSchoolArrangements-timestamp")
+            forKey: "cachedSchoolArrangements-timestamp"
+        )
         let hasValidArrangementsCache =
             (currentTime - arrangementsTimestamp) < 86400
                 && userDefaults.data(forKey: "cachedSchoolArrangements") != nil
@@ -365,7 +366,7 @@ class CacheManager {
 
         for (timestampKey, duration) in cacheDurations {
             let lastUpdate = userDefaults.double(forKey: timestampKey)
-            if lastUpdate > 0 && (currentTime - lastUpdate) >= duration {
+            if lastUpdate > 0, (currentTime - lastUpdate) >= duration {
                 outdatedCount += 1
             }
         }
@@ -375,12 +376,12 @@ class CacheManager {
         for key in allKeys {
             if key.hasPrefix("timetableCacheTimestamp-") {
                 let lastUpdate = userDefaults.double(forKey: key)
-                if lastUpdate > 0 && (currentTime - lastUpdate) >= 86400 {
+                if lastUpdate > 0, (currentTime - lastUpdate) >= 86400 {
                     outdatedCount += 1
                 }
             } else if key.hasPrefix("scoresCacheTimestamp-") {
                 let lastUpdate = userDefaults.double(forKey: key)
-                if lastUpdate > 0 && (currentTime - lastUpdate) >= 300 {
+                if lastUpdate > 0, (currentTime - lastUpdate) >= 300 {
                     outdatedCount += 1
                 }
             }
@@ -435,21 +436,21 @@ enum CacheHealth {
 
     var description: String {
         switch self {
-        case .excellent: return "Excellent"
-        case .good: return "Good"
-        case .fair: return "Fair"
-        case .poor: return "Poor"
-        case .none: return "No Cache"
+        case .excellent: "Excellent"
+        case .good: "Good"
+        case .fair: "Fair"
+        case .poor: "Poor"
+        case .none: "No Cache"
         }
     }
 
     var color: String {
         switch self {
-        case .excellent: return "green"
-        case .good: return "blue"
-        case .fair: return "orange"
-        case .poor: return "red"
-        case .none: return "gray"
+        case .excellent: "green"
+        case .good: "blue"
+        case .fair: "orange"
+        case .poor: "red"
+        case .none: "gray"
         }
     }
 }

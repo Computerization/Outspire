@@ -234,7 +234,7 @@ struct CacheComponentRow: View {
     }
 
     private var formattedLastUpdate: String {
-        guard let lastUpdate = lastUpdate else { return "Never" }
+        guard let lastUpdate else { return "Never" }
 
         let formatter = RelativeDateTimeFormatter()
         formatter.dateTimeStyle = .named

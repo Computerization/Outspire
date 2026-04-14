@@ -9,9 +9,9 @@ enum ResultTypeValue: Decodable {
     var isSuccess: Bool {
         switch self {
         case let .string(s):
-            return s == "0"
+            s == "0"
         case let .int(i):
-            return i == 0
+            i == 0
         }
     }
 
@@ -39,7 +39,9 @@ struct ApiResponse<T: Decodable>: Decodable {
         case data = "Data"
     }
 
-    var isSuccess: Bool { resultType.isSuccess }
+    var isSuccess: Bool {
+        resultType.isSuccess
+    }
 }
 
 // MARK: - Paged wrapper used by many list endpoints

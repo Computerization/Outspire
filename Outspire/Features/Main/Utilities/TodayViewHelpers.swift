@@ -1,10 +1,10 @@
 import Foundation
 
-// Helper functions that can be shared between components
+/// Helper functions that can be shared between components
 enum TodayViewHelpers {
     static func weekdayName(for index: Int) -> String {
         let days = ["Mon", "Tue", "Wed", "Thu", "Fri"]
-        guard index >= 1 && index <= 5 else { return "" }
+        guard index >= 1, index <= 5 else { return "" }
         return days[index - 1]
     }
 

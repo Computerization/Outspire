@@ -11,10 +11,12 @@ final class TSIMSClientV2 {
     private var session: URLSession = .shared
 
     #if DEBUG
-        func setSession(_ session: URLSession) { self.session = session }
+        func setSession(_ session: URLSession) {
+            self.session = session
+        }
     #endif
 
-    // Shared headers for form POSTs
+    /// Shared headers for form POSTs
     private var formHeaders: [String: String] {
         [
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -34,13 +36,13 @@ final class TSIMSClientV2 {
 
     private func cookieSummary(for url: URL) -> String {
         guard let cookies = HTTPCookieStorage.shared.cookies(for: url) else { return "<none>" }
-        let names = cookies.map { $0.name }
+        let names = cookies.map(\.name)
         return names.joined(separator: ", ")
     }
 
     // MARK: - Public
 
-    // Low-level POST returning raw data for custom decoding
+    /// Low-level POST returning raw data for custom decoding
     func postFormRaw(
         path: String,
         form: [String: String],
@@ -75,7 +77,7 @@ final class TSIMSClientV2 {
         func makeRequest(retried: Bool) {
             session.dataTask(with: request) { data, response, error in
                 DispatchQueue.main.async {
-                    if let error = error { completion(.failure(.requestFailed(error))); return }
+                    if let error { completion(.failure(.requestFailed(error))); return }
                     guard let http = response as? HTTPURLResponse else { completion(.failure(.noData)); return }
                     let contentType = (http.allHeaderFields["Content-Type"] as? String)?.lowercased() ?? ""
                     if http.statusCode == 302 || http.statusCode == 401 || contentType.contains("text/html") {
@@ -93,7 +95,7 @@ final class TSIMSClientV2 {
                         }
                         return
                     }
-                    guard http.statusCode < 400, let data = data, !data.isEmpty else {
+                    guard http.statusCode < 400, let data, !data.isEmpty else {
                         completion(.failure(.noData)); return
                     }
                     self.log("RESP status=\(http.statusCode) contentType=\(contentType) bytes=\(data.count)")
@@ -131,7 +133,7 @@ final class TSIMSClientV2 {
         func makeRequest(retried: Bool) {
             session.dataTask(with: request) { data, response, error in
                 DispatchQueue.main.async {
-                    if let error = error { completion(.failure(.requestFailed(error))); return }
+                    if let error { completion(.failure(.requestFailed(error))); return }
                     guard let http = response as? HTTPURLResponse else { completion(.failure(.noData)); return }
                     let contentType = (http.allHeaderFields["Content-Type"] as? String)?.lowercased() ?? ""
                     if http.statusCode == 302 || http.statusCode == 401 || contentType.contains("text/html") {
@@ -155,7 +157,7 @@ final class TSIMSClientV2 {
                         completion(.failure(.serverError(http.statusCode)))
                         return
                     }
-                    guard let data = data, !data.isEmpty else {
+                    guard let data, !data.isEmpty else {
                         self.log("RESP noData")
                         completion(.failure(.noData))
                         return
@@ -184,7 +186,7 @@ final class TSIMSClientV2 {
         completion: @escaping (Result<ApiResponse<T>, NetworkError>) -> Void
     ) {
         var urlString = Configuration.tsimsV2BaseURL + path
-        if let query = query, !query.isEmpty {
+        if let query, !query.isEmpty {
             let qs = query.map { key, value in
                 let encoded = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
                 return "\(key)=\(encoded)"
@@ -213,7 +215,7 @@ final class TSIMSClientV2 {
         func makeRequest(retried: Bool) {
             session.dataTask(with: request) { data, response, error in
                 DispatchQueue.main.async {
-                    if let error = error { completion(.failure(.requestFailed(error))); return }
+                    if let error { completion(.failure(.requestFailed(error))); return }
                     guard let http = response as? HTTPURLResponse else { completion(.failure(.noData)); return }
                     let contentType = (http.allHeaderFields["Content-Type"] as? String)?.lowercased() ?? ""
                     if http.statusCode == 302 || http.statusCode == 401 || contentType.contains("text/html") {
@@ -237,7 +239,7 @@ final class TSIMSClientV2 {
                         completion(.failure(.serverError(http.statusCode)))
                         return
                     }
-                    guard let data = data, !data.isEmpty else {
+                    guard let data, !data.isEmpty else {
                         self.log("RESP noData")
                         completion(.failure(.noData))
                         return
@@ -289,7 +291,7 @@ final class TSIMSClientV2 {
         func makeRequest(retried: Bool) {
             session.dataTask(with: request) { data, response, error in
                 DispatchQueue.main.async {
-                    if let error = error { completion(.failure(.requestFailed(error))); return }
+                    if let error { completion(.failure(.requestFailed(error))); return }
                     guard let http = response as? HTTPURLResponse else { completion(.failure(.noData)); return }
                     let finalPath = (http.url?.path ?? "").lowercased()
                     let landedOnLogin = finalPath.contains("/home/login") || finalPath.hasSuffix("/home/index")
@@ -314,7 +316,7 @@ final class TSIMSClientV2 {
                         completion(.failure(.serverError(http.statusCode)))
                         return
                     }
-                    guard let data = data, !data.isEmpty else {
+                    guard let data, !data.isEmpty else {
                         completion(.failure(.noData))
                         return
                     }
@@ -339,7 +341,7 @@ final class TSIMSClientV2 {
         completion: @escaping (Result<ApiResponse<T>, NetworkError>) -> Void
     ) {
         DispatchQueue.main.async {
-            if let error = error {
+            if let error {
                 completion(.failure(.requestFailed(error)))
                 return
             }
@@ -360,7 +362,7 @@ final class TSIMSClientV2 {
                 completion(.failure(.serverError(http.statusCode)))
                 return
             }
-            guard let data = data, !data.isEmpty else {
+            guard let data, !data.isEmpty else {
                 self.log("RESP noData")
                 completion(.failure(.noData))
                 return
@@ -408,7 +410,7 @@ final class TSIMSClientV2 {
     @available(iOS 15.0, macOS 12.0, *)
     func getJSONAsync<T: Decodable>(path: String, query: [String: String]? = nil) async throws -> ApiResponse<T> {
         var urlString = Configuration.tsimsV2BaseURL + path
-        if let query = query, !query.isEmpty {
+        if let query, !query.isEmpty {
             let qs = query.map { key, value in
                 let encoded = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
                 return "\(key)=\(encoded)"

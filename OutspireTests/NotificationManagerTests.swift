@@ -1,7 +1,6 @@
+@testable import Outspire
 import UserNotifications
 import XCTest
-
-@testable import Outspire
 
 class NotificationManagerTests: XCTestCase {
     var notificationManager: NotificationManager!
@@ -19,7 +18,8 @@ class NotificationManagerTests: XCTestCase {
     func testCentralizedNotificationManagement() {
         // Test the centralized notification management methods
         let expectation = XCTestExpectation(
-            description: "Centralized management should work correctly")
+            description: "Centralized management should work correctly"
+        )
 
         // Test settings change
         notificationManager.handleNotificationSettingsChange()
@@ -42,8 +42,13 @@ private class MockURLProtocol: URLProtocol {
     static var responseHeaders: [String: String]? = ["Content-Type": "application/json"]
     static var error: Error?
 
-    override class func canInit(with request: URLRequest) -> Bool { true }
-    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+    override class func canInit(with request: URLRequest) -> Bool {
+        true
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        request
+    }
 
     override func startLoading() {
         if let error = MockURLProtocol.error {

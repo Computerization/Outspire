@@ -202,7 +202,7 @@ private struct SummaryItem: View {
     }
 }
 
-// Daily schedule summary card
+/// Daily schedule summary card
 struct DailyScheduleCard: View {
     @ObservedObject var viewModel: ClasstableViewModel
     let dayIndex: Int
@@ -210,10 +210,12 @@ struct DailyScheduleCard: View {
     @State private var isExpandedSchedule = false
     @State private var isClassesOver: Bool = false
 
-    // Convert dayIndex (0-4) to weekday (2-6, Monday-Friday)
-    private var dayWeekday: Int { dayIndex + 2 }
+    /// Convert dayIndex (0-4) to weekday (2-6, Monday-Friday)
+    private var dayWeekday: Int {
+        dayIndex + 2
+    }
 
-    // Class period model that conforms to Equatable and Identifiable
+    /// Class period model that conforms to Equatable and Identifiable
     struct ClassPeriodItem: Equatable, Identifiable {
         let id: String // Using composite id for uniqueness
         let period: Int
@@ -228,18 +230,18 @@ struct DailyScheduleCard: View {
         }
 
         static func == (lhs: ClassPeriodItem, rhs: ClassPeriodItem) -> Bool {
-            return lhs.period == rhs.period &&
+            lhs.period == rhs.period &&
                 lhs.data == rhs.data &&
                 lhs.isSelfStudy == rhs.isSelfStudy
         }
     }
 
-    // Get max periods for this day of the week
+    /// Get max periods for this day of the week
     private var maxPeriodsForDay: Int {
         ClassPeriodsManager.shared.getMaxPeriodsByWeekday(dayWeekday)
     }
 
-    // Check if there are any classes or self-study periods for the day
+    /// Check if there are any classes or self-study periods for the day
     private var hasClasses: Bool {
         guard !viewModel.timetable.isEmpty, viewModel.timetable.count > 1 else { return false }
         return (1 ..< min(viewModel.timetable.count, maxPeriodsForDay + 1)).contains { row in
@@ -247,7 +249,7 @@ struct DailyScheduleCard: View {
         }
     }
 
-    // Get a list of classes/self-study periods for the day using our new struct
+    /// Get a list of classes/self-study periods for the day using our new struct
     private var scheduledClassesForToday: [ClassPeriodItem] {
         guard !viewModel.timetable.isEmpty else { return [] }
 
@@ -268,13 +270,13 @@ struct DailyScheduleCard: View {
         }
     }
 
-    // Add method to check if all classes for today are over
+    /// Add method to check if all classes for today are over
     private func checkIfClassesOver() {
         let now = Date()
         if dayIndex >= 0, dayIndex <= 4 {
             let classes = scheduledClassesForToday
             if !classes.isEmpty {
-                if let lastClassPeriod = classes.map({ $0.period }).max(),
+                if let lastClassPeriod = classes.map(\.period).max(),
                    let lastPeriod = ClassPeriodsManager.shared.classPeriods
                    .first(where: { $0.number == lastClassPeriod })
                 {
@@ -295,7 +297,7 @@ struct DailyScheduleCard: View {
                 Spacer()
                 if hasClasses {
                     let regularClassCount = scheduledClassesForToday.filter { !$0.isSelfStudy }.count
-                    let selfStudyCount = scheduledClassesForToday.filter { $0.isSelfStudy }.count
+                    let selfStudyCount = scheduledClassesForToday.filter(\.isSelfStudy).count
 
                     Text("\(regularClassCount) Classes, \(selfStudyCount) Self-Study")
                         .font(AppText.meta)
@@ -365,7 +367,7 @@ struct DailyScheduleCard: View {
     }
 }
 
-// Sign in prompt card
+/// Sign in prompt card
 struct SignInPromptCard: View {
     @ViewBuilder
     private var sparklesIcon: some View {
@@ -481,7 +483,7 @@ private struct QuickLinkCard<Dest: View>: View {
     }
 }
 
-// Add the button style that was in TodayView
+/// Add the button style that was in TodayView
 struct ScaleButtonStyle: ButtonStyle {
     func makeBody(configuration: ButtonStyleConfiguration) -> some View {
         configuration.label
@@ -490,7 +492,7 @@ struct ScaleButtonStyle: ButtonStyle {
     }
 }
 
-// Self Study Period Card
+/// Self Study Period Card
 struct SelfStudyPeriodCard: View {
     let currentPeriod: Int
     let nextClassPeriod: Int?
@@ -498,7 +500,7 @@ struct SelfStudyPeriodCard: View {
     let dayOfWeek: Int? // 1-7, where 1 is Sunday
 
     private var isLastPeriodOfDay: Bool {
-        guard let dayOfWeek = dayOfWeek else { return false }
+        guard let dayOfWeek else { return false }
         return currentPeriod >= ClassPeriodsManager.shared.getMaxPeriodsByWeekday(dayOfWeek)
     }
 
@@ -519,7 +521,7 @@ struct SelfStudyPeriodCard: View {
                     .font(AppText.meta)
                     .foregroundStyle(.secondary)
 
-                if let nextClassPeriod = nextClassPeriod, let nextClassName = nextClassName {
+                if let nextClassPeriod, let nextClassName {
                     Text("Next: Period \(nextClassPeriod) — \(nextClassName)")
                         .font(AppText.meta)
                         .foregroundStyle(.purple)
@@ -533,7 +535,7 @@ struct SelfStudyPeriodCard: View {
     }
 }
 
-// Lunch Break Card
+/// Lunch Break Card
 struct LunchBreakCard: View {
     let nextClassPeriod: Int?
     let nextClassName: String?
@@ -566,7 +568,7 @@ struct LunchBreakCard: View {
                     .font(AppText.meta)
                     .foregroundStyle(.secondary)
 
-                if let nextClassPeriod = nextClassPeriod, let nextClassName = nextClassName {
+                if let nextClassPeriod, let nextClassName {
                     let components = nextClassName.components(separatedBy: "\n").filter { !$0.isEmpty }
                     let subjectName = components.count > 1 ? components[1] : nextClassName
 
@@ -605,5 +607,7 @@ struct PressableCardStyle: ButtonStyle {
 }
 
 extension ButtonStyle where Self == PressableCardStyle {
-    static var pressableCard: PressableCardStyle { PressableCardStyle() }
+    static var pressableCard: PressableCardStyle {
+        PressableCardStyle()
+    }
 }

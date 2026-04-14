@@ -1,6 +1,5 @@
-import SwiftUI
-
 import QuickLook
+import SwiftUI
 
 // Removed ColorfulX usage in favor of system materials
 import Toasts
@@ -15,9 +14,9 @@ struct LunchMenuView: View {
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject var gradientManager: GradientManager // Add gradient manager
 
-    // Track content status
+    /// Track content status
     private var isEmptyState: Bool {
-        return filteredGroups.isEmpty && !viewModel.isLoading
+        filteredGroups.isEmpty && !viewModel.isLoading
     }
 
     // Device adaptive settings
@@ -26,9 +25,9 @@ struct LunchMenuView: View {
 
     private var filteredGroups: [LunchMenuGroup] {
         if searchText.isEmpty {
-            return viewModel.menuGroups
+            viewModel.menuGroups
         } else {
-            return viewModel.menuGroups.compactMap { group in
+            viewModel.menuGroups.compactMap { group in
                 let filteredItems = group.items.filter { item in
                     item.title.localizedCaseInsensitiveContains(searchText)
                 }
@@ -54,7 +53,7 @@ struct LunchMenuView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if viewModel.isLoading && viewModel.menuItems.isEmpty {
+                if viewModel.isLoading, viewModel.menuItems.isEmpty {
                     loadingView
                 } else if isEmptyState {
                     emptyStateView
@@ -158,7 +157,7 @@ struct LunchMenuView: View {
                 .id(group.id)
             }
 
-            if viewModel.currentPage < viewModel.totalPages && !viewModel.isLoading {
+            if viewModel.currentPage < viewModel.totalPages, !viewModel.isLoading {
                 loadMoreRow
             }
         }
@@ -257,7 +256,7 @@ struct LunchMenuView: View {
                 .onAppear {
                     // Auto-dismiss if no data loaded after a timeout
                     DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                        if viewModel.pdfURL == nil && !viewModel.isLoadingDetail {
+                        if viewModel.pdfURL == nil, !viewModel.isLoadingDetail {
                             showDetailSheet = false
                             viewModel.errorMessage = "Failed to load menu content"
                         }
@@ -291,7 +290,7 @@ struct LunchMenuView: View {
         }
     }
 
-    // Add method to update gradient for lunch menu
+    /// Add method to update gradient for lunch menu
     private func updateGradientForLunchMenu() {
         #if !targetEnvironment(macCatalyst)
             gradientManager.updateGradientForView(.lunchMenu, colorScheme: colorScheme)
@@ -395,7 +394,7 @@ struct LunchMenuSection: View {
     }
 }
 
-// Modern collapsible section header for List/Section
+/// Modern collapsible section header for List/Section
 private struct CollapsibleSectionHeader: View {
     let title: String
     let isExpanded: Bool
@@ -418,7 +417,7 @@ private struct CollapsibleSectionHeader: View {
     }
 }
 
-// List row using DisclosureGroup to expand details
+/// List row using DisclosureGroup to expand details
 private struct LunchMenuItemRow: View {
     let item: LunchMenuItem
     let onToggle: () -> Void
@@ -604,7 +603,7 @@ struct MenuDetailButton: View {
 }
 
 struct LunchMenuSkeletonView: View {
-    // Animation states
+    /// Animation states
     @State private var animateItems = false
 
     var body: some View {

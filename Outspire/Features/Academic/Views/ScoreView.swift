@@ -40,7 +40,7 @@ struct ScoreView: View {
             updateGradientForScoreView()
 
             // Force a reset to the most recent term when the view appears
-            if isAuthenticated && viewModel.isUnlocked {
+            if isAuthenticated, viewModel.isUnlocked {
                 viewModel.selectMostRecentTerm()
             }
         }
@@ -51,14 +51,14 @@ struct ScoreView: View {
                     viewModel.authenticate()
                 } else if viewModel.terms.isEmpty {
                     viewModel.fetchTerms()
-                } else if viewModel.scores.isEmpty && !viewModel.selectedTermId.isEmpty {
+                } else if viewModel.scores.isEmpty, !viewModel.selectedTermId.isEmpty {
                     viewModel.fetchScores()
                 }
             }
         }
         .onChange(of: viewModel.selectedTermId) { oldValue, newValue in
             // When term changes, ensure we load data for the new term
-            if !newValue.isEmpty && oldValue != newValue {
+            if !newValue.isEmpty, oldValue != newValue {
                 viewModel.fetchScores()
             }
         }
@@ -77,7 +77,7 @@ struct ScoreView: View {
 
     private var mainContent: some View {
         Group {
-            if viewModel.isLoadingTerms && viewModel.terms.isEmpty {
+            if viewModel.isLoadingTerms, viewModel.terms.isEmpty {
                 VStack {
                     // Fixed height container to prevent layout jumps
                     VStack(spacing: 0) {
@@ -92,7 +92,7 @@ struct ScoreView: View {
 
                     LoadingView(message: "Loading terms...", fixedHeight: 400)
                 }
-            } else if viewModel.terms.isEmpty && !viewModel.isLoadingTerms {
+            } else if viewModel.terms.isEmpty, !viewModel.isLoadingTerms {
                 VStack {
                     // Fixed height container to prevent layout jumps
                     VStack(spacing: 0) {
@@ -213,7 +213,7 @@ struct ScoreView: View {
             if viewModel.isLoading {
                 ScoreSkeletonView()
                     .transition(.opacity)
-            } else if viewModel.scores.isEmpty && viewModel.errorMessage == nil {
+            } else if viewModel.scores.isEmpty, viewModel.errorMessage == nil {
                 // Fallback empty state (though this shouldn't happen with our improved handling)
                 ContentUnavailableView(
                     "No Scores Available",
@@ -221,7 +221,7 @@ struct ScoreView: View {
                     description: Text("There are no scores available for this term yet.")
                 )
                 .transition(.opacity)
-            } else if viewModel.scores.isEmpty && viewModel.errorMessage != nil {
+            } else if viewModel.scores.isEmpty, viewModel.errorMessage != nil {
                 // Contextual empty state based on the term
                 let message = viewModel.errorMessage ?? "No data available"
                 let isUpcoming = message.contains("hasn't started")
@@ -355,15 +355,15 @@ struct ScoreView: View {
             }
 
             // Check if there's stale data that needs refreshing
-            if !viewModel.scores.isEmpty && !viewModel.isLoading
-                && !viewModel.isCacheValid(for: "scoresCacheTimestamp-\(viewModel.selectedTermId)")
+            if !viewModel.scores.isEmpty, !viewModel.isLoading,
+               !viewModel.isCacheValid(for: "scoresCacheTimestamp-\(viewModel.selectedTermId)")
             {
                 // Silently refresh data if cache is stale
                 viewModel.fetchScores(forceRefresh: true)
             }
         }
         .onChange(of: viewModel.isLoading) { oldValue, isLoading in
-            if !isLoading && !viewModel.scores.isEmpty && oldValue {
+            if !isLoading, !viewModel.scores.isEmpty, oldValue {
                 // Reset and re-trigger animation when loading completes
                 animateIn = false
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
@@ -464,12 +464,13 @@ struct ScoreView: View {
                     )
                 }
                 .disabled(
-                    !isAuthenticated || viewModel.isLoading || viewModel.isLoadingTerms)
+                    !isAuthenticated || viewModel.isLoading || viewModel.isLoadingTerms
+                )
             }
         }
     }
 
-    // Add method to update gradient for score view
+    /// Add method to update gradient for score view
     private func updateGradientForScoreView() {
         gradientManager.updateGradientForView(.score, colorScheme: colorScheme)
     }
@@ -477,7 +478,7 @@ struct ScoreView: View {
 
 extension ScoreView {
     private var isAuthenticated: Bool {
-        return authV2.isAuthenticated
+        authV2.isAuthenticated
     }
 }
 
@@ -523,9 +524,9 @@ struct SubjectScoreCard: View {
         ModernScheduleRow.subjectColor(for: subject.subjectName)
     }
 
-    // Check if this subject has any valid scores
+    /// Check if this subject has any valid scores
     private var hasAnyScores: Bool {
-        return subject.examScores.contains { $0.hasScore }
+        subject.examScores.contains { $0.hasScore }
     }
 
     var body: some View {
@@ -575,13 +576,13 @@ struct SubjectScoreCard: View {
             }
 
             // Expanded content with improved animation
-            if isExpanded && hasAnyScores {
+            if isExpanded, hasAnyScores {
                 VStack(spacing: 0) {
                     Divider()
                         .padding(.horizontal)
 
                     VStack(spacing: 12) {
-                        ForEach(subject.examScores.filter { $0.hasScore }) { exam in
+                        ForEach(subject.examScores.filter(\.hasScore)) { exam in
                             HStack {
                                 Text(exam.name)
                                     .font(.system(size: 15))
@@ -594,7 +595,7 @@ struct SubjectScoreCard: View {
                                     .font(.system(size: 17, weight: .semibold))
                                     .foregroundColor(.primary)
 
-                                if !exam.level.isEmpty && exam.level != "0" {
+                                if !exam.level.isEmpty, exam.level != "0" {
                                     Text(exam.level)
                                         .font(.system(size: 14))
                                         .foregroundColor(scoreGradeColor(exam.level))
@@ -618,19 +619,19 @@ struct SubjectScoreCard: View {
     private func scoreGradeColor(_ grade: String) -> Color {
         switch grade {
         case "A*", "A+":
-            return Color(red: 0.85, green: 0.65, blue: 0.13) // gold
+            Color(red: 0.85, green: 0.65, blue: 0.13) // gold
         case "A":
-            return .indigo
+            .indigo
         case "B":
-            return .teal
+            .teal
         case "C":
-            return .green
+            .green
         case "D":
-            return .orange
+            .orange
         case "E", "F":
-            return .red
+            .red
         default:
-            return .gray
+            .gray
         }
     }
 }

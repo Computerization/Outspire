@@ -46,10 +46,10 @@ class AddReflectionViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private static var cachedFormData: FormCache?
 
-    // Timer for autosave
+    /// Timer for autosave
     private var autoSaveTimer: Timer?
 
-    // Struct to store form data for autosave
+    /// Struct to store form data for autosave
     struct FormCache: Codable {
         let groupId: String
         let title: String
@@ -116,7 +116,7 @@ class AddReflectionViewModel: ObservableObject {
         autoSaveTimer?.invalidate()
     }
 
-    // Set up auto-save timer
+    /// Set up auto-save timer
     private func setupAutoSave() {
         // Set up a timer to save every 2 seconds when content changes
         autoSaveTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) {
@@ -141,7 +141,7 @@ class AddReflectionViewModel: ObservableObject {
         $lo8.sink { [weak self] _ in self?.cacheFormData() }.store(in: &cancellables)
     }
 
-    // Cache form data automatically
+    /// Cache form data automatically
     func cacheFormData() {
         // Only cache if there's meaningful data
         if !title.isEmpty || !summary.isEmpty || !content.isEmpty || hasAnyLearningOutcome() {
@@ -155,7 +155,7 @@ class AddReflectionViewModel: ObservableObject {
         }
     }
 
-    // Clear the form and cache
+    /// Clear the form and cache
     func clearForm() {
         title = ""
         summary = ""
@@ -176,17 +176,22 @@ class AddReflectionViewModel: ObservableObject {
         AddReflectionViewModel.cachedFormData = nil
     }
 
-    // Clear the cache after successful submission
+    /// Clear the cache after successful submission
     func clearCache() {
         AddReflectionViewModel.cachedFormData = nil
     }
 
     // MARK: - Computed word counts
 
-    var summaryWordCount: Int { summary.trimmingCharacters(in: .whitespacesAndNewlines).count }
-    var contentWordCount: Int { content.trimmingCharacters(in: .whitespacesAndNewlines).count }
+    var summaryWordCount: Int {
+        summary.trimmingCharacters(in: .whitespacesAndNewlines).count
+    }
 
-    // Current limits based on group
+    var contentWordCount: Int {
+        content.trimmingCharacters(in: .whitespacesAndNewlines).count
+    }
+
+    /// Current limits based on group
     var summaryLimit: Int {
         selectedGroupId == altGroupId ? altSummaryLimit : defaultSummaryLimit
     }
@@ -195,9 +200,9 @@ class AddReflectionViewModel: ObservableObject {
         selectedGroupId == altGroupId ? altContentMin : defaultContentMin
     }
 
-    // Check if any learning outcome is selected
+    /// Check if any learning outcome is selected
     func hasAnyLearningOutcome() -> Bool {
-        return lo1 || lo2 || lo3 || lo4 || lo5 || lo6 || lo7 || lo8
+        lo1 || lo2 || lo3 || lo4 || lo5 || lo6 || lo7 || lo8
     }
 
     // MARK: - Validation
@@ -308,7 +313,7 @@ class AddReflectionViewModel: ObservableObject {
         }
     }
 
-    // Map GroupNo -> numeric Id using cached group list; prime cache if needed
+    /// Map GroupNo -> numeric Id using cached group list; prime cache if needed
     private func resolveNumericGroupId(_ idOrNo: String, completion: @escaping (String) -> Void) {
         guard !idOrNo.isEmpty else { completion(""); return }
         if let detail = CASServiceV2.shared.getCachedGroupDetails(idOrNo: idOrNo), let nid = detail.Id {
@@ -385,7 +390,7 @@ class AddReflectionViewModel: ObservableObject {
 
     /// Get all selected learning outcomes as a comma-separated string
     private func getSelectedLearningOutcomes() -> String {
-        return [
+        [
             lo1 ? "Awareness" : nil,
             lo2 ? "Challenge" : nil,
             lo3 ? "Initiative" : nil,

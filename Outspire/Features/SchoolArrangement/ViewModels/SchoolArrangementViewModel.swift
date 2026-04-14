@@ -25,7 +25,7 @@ class SchoolArrangementViewModel: ObservableObject {
     private var detailTask: URLSessionDataTask?
     private var processedImageUrls = Set<String>()
 
-    // Group for async image downloading
+    /// Group for async image downloading
     private let downloadGroup = DispatchGroup()
 
     init() {
@@ -63,7 +63,7 @@ class SchoolArrangementViewModel: ObservableObject {
         request.timeoutInterval = 15
 
         currentTask = URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
-            guard let self = self else { return }
+            guard let self else { return }
 
             DispatchQueue.main.async {
                 self.isLoading = false
@@ -73,7 +73,7 @@ class SchoolArrangementViewModel: ObservableObject {
                     return
                 }
 
-                guard let data = data, let htmlString = String(data: data, encoding: .utf8) else {
+                guard let data, let htmlString = String(data: data, encoding: .utf8) else {
                     self.errorMessage = "Failed to decode response"
                     return
                 }
@@ -142,7 +142,7 @@ class SchoolArrangementViewModel: ObservableObject {
         request.timeoutInterval = 15
 
         detailTask = URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
-            guard let self = self else { return }
+            guard let self else { return }
 
             if let error = error as NSError?, error.code != NSURLErrorCancelled {
                 DispatchQueue.main.async {
@@ -153,7 +153,7 @@ class SchoolArrangementViewModel: ObservableObject {
                 return
             }
 
-            guard let data = data, let htmlString = String(data: data, encoding: .utf8) else {
+            guard let data, let htmlString = String(data: data, encoding: .utf8) else {
                 DispatchQueue.main.async {
                     self.isLoadingDetail = false
                     print("DEBUG: Failed to decode response")
@@ -236,11 +236,10 @@ class SchoolArrangementViewModel: ObservableObject {
         outputDateFormatter.dateFormat = "MMMM yyyy"
 
         for item in arrangements {
-            let key: String
-            if let date = inputDateFormatter.date(from: item.publishDate) {
-                key = outputDateFormatter.string(from: date)
+            let key: String = if let date = inputDateFormatter.date(from: item.publishDate) {
+                outputDateFormatter.string(from: date)
             } else {
-                key = "Unknown Date"
+                "Unknown Date"
             }
 
             if groups[key] == nil {
@@ -372,7 +371,7 @@ class SchoolArrangementViewModel: ObservableObject {
                 }
 
                 // If no URL found but has fileid attribute, construct URL
-                if imgUrl == nil && img.hasAttr("fileid") {
+                if imgUrl == nil, img.hasAttr("fileid") {
                     if let fileId = try? img.attr("fileid"), !fileId.isEmpty {
                         imgUrl = "/oss/\(fileId)"
                         print("DEBUG: Constructed image URL from fileid: \(imgUrl!)")
@@ -380,7 +379,7 @@ class SchoolArrangementViewModel: ObservableObject {
                 }
 
                 // Process the found URL if any
-                if let imgUrl = imgUrl {
+                if let imgUrl {
                     // Build absolute URL if needed
                     let absoluteUrl = imgUrl.hasPrefix("http") ? imgUrl : "\(baseURL)\(imgUrl)"
 
@@ -403,7 +402,7 @@ class SchoolArrangementViewModel: ObservableObject {
                     for match in matches {
                         if let range = Range(match.range(at: 1), in: content) {
                             let imgUrl = String(content[range])
-                            if imgUrl.contains("/oss/") && !imgUrl.contains(".gif") {
+                            if imgUrl.contains("/oss/"), !imgUrl.contains(".gif") {
                                 let absoluteUrl = imgUrl.hasPrefix("http") ? imgUrl : "\(baseURL)\(imgUrl)"
                                 if !processedImageUrls.contains(absoluteUrl) {
                                     imageUrls.append(absoluteUrl)
@@ -512,15 +511,15 @@ class SchoolArrangementViewModel: ObservableObject {
         detailTask = nil
     }
 
-    // Improved URL validation helper
+    /// Improved URL validation helper
     private func isValidURL(_ urlString: String) -> Bool {
         guard let url = URL(string: urlString) else { return false }
         return UIApplication.shared.canOpenURL(url)
     }
 
-    // Validate and sanitize a URL string
+    /// Validate and sanitize a URL string
     private func sanitizeURL(_ urlString: String) -> String {
-        return urlString
+        urlString
             .replacingOccurrences(of: " ", with: "%20")
             .replacingOccurrences(of: "\\", with: "/")
     }
@@ -539,7 +538,7 @@ class SchoolArrangementViewModel: ObservableObject {
         downloadImagesSequentially(detail: detail, imageUrls: detail.imageUrls)
     }
 
-    // Sequential approach for more reliable image downloads
+    /// Sequential approach for more reliable image downloads
     private func downloadImagesSequentially(detail: SchoolArrangementDetail, imageUrls: [String]) {
         print("DEBUG: Using sequential image download for \(imageUrls.count) images")
 
@@ -605,15 +604,15 @@ class SchoolArrangementViewModel: ObservableObject {
         let session = URLSession(configuration: sessionConfig)
 
         let task = session.dataTask(with: url) { [weak self] data, _, error in
-            guard let self = self else { return }
+            guard let self else { return }
 
             var newDownloadedImages = downloadedImages
             var newFailedUrls = failedUrls
 
-            if let error = error {
+            if let error {
                 print("DEBUG: Error downloading image \(currentIndex + 1): \(error.localizedDescription)")
                 newFailedUrls.append(urlString)
-            } else if let data = data, let image = UIImage(data: data) {
+            } else if let data, let image = UIImage(data: data) {
                 print("DEBUG: Successfully downloaded image \(currentIndex + 1) - size: \(data.count) bytes")
                 newDownloadedImages.append(image)
             } else {
@@ -636,7 +635,7 @@ class SchoolArrangementViewModel: ObservableObject {
         task.resume()
     }
 
-    // More thorough URL sanitization and encoding
+    /// More thorough URL sanitization and encoding
     private func sanitizeAndEncodeURL(_ urlString: String) -> String {
         // Step 1: Basic cleaning
         var cleaned = urlString
@@ -646,7 +645,7 @@ class SchoolArrangementViewModel: ObservableObject {
             .replacingOccurrences(of: "'", with: "")
 
         // Step 2: Add prefixes if needed
-        if !cleaned.hasPrefix("http") && !cleaned.hasPrefix("/") {
+        if !cleaned.hasPrefix("http"), !cleaned.hasPrefix("/") {
             cleaned = "/\(cleaned)"
         }
 
@@ -741,7 +740,7 @@ class SchoolArrangementViewModel: ObservableObject {
 
     private func cleanupTemporaryFiles() {
         // Clean up the temporary PDF if it exists
-        if let pdfURL = pdfURL {
+        if let pdfURL {
             do {
                 try FileManager.default.removeItem(at: pdfURL)
                 print("DEBUG: Removed temporary PDF file")
@@ -751,7 +750,7 @@ class SchoolArrangementViewModel: ObservableObject {
         }
     }
 
-    // Enhanced animation control method with device-specific behavior
+    /// Enhanced animation control method with device-specific behavior
     func triggerInitialAnimation(isSmallScreen: Bool = UIDevice.isSmallScreen) {
         // Skip if already animated according to the global manager
         if AnimationManager.shared.hasAnimated(viewId: animationViewId) {

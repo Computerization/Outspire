@@ -18,41 +18,41 @@ enum ViewType: String, CaseIterable, Codable, Hashable {
 
     var displayName: String {
         switch self {
-        case .today: return "Today View"
-        case .classtable: return "Class Table"
-        case .score: return "Academic Grades"
-        case .clubInfo: return "Club Information"
-        case .clubActivities: return "Club Activities"
-        case .clubReflections: return "Club Reflections"
-        case .schoolArrangements: return "School Arrangements"
-        case .lunchMenu: return "Lunch Menu"
-        case .map: return "Campus Map"
-        case .notSignedIn: return "Not Signed In"
-        case .weekend: return "Weekend"
-        case .holiday: return "Holiday Mode"
-        case .help: return "Help"
+        case .today: "Today View"
+        case .classtable: "Class Table"
+        case .score: "Academic Grades"
+        case .clubInfo: "Club Information"
+        case .clubActivities: "Club Activities"
+        case .clubReflections: "Club Reflections"
+        case .schoolArrangements: "School Arrangements"
+        case .lunchMenu: "Lunch Menu"
+        case .map: "Campus Map"
+        case .notSignedIn: "Not Signed In"
+        case .weekend: "Weekend"
+        case .holiday: "Holiday Mode"
+        case .help: "Help"
         }
     }
 
-    // Helper to create a ViewType from navigation link
+    /// Helper to create a ViewType from navigation link
     static func fromLink(_ link: String) -> ViewType? {
         switch link {
-        case "today": return .today
-        case "classtable": return .classtable
-        case "score": return .score
-        case "club-info": return .clubInfo
-        case "club-activity": return .clubActivities
-        case "club-reflection": return .clubReflections
-        case "school-arrangement": return .schoolArrangements
-        case "lunch-menu": return .lunchMenu
-        case "map": return .map
-        case "help": return .help
-        default: return nil
+        case "today": .today
+        case "classtable": .classtable
+        case "score": .score
+        case "club-info": .clubInfo
+        case "club-activity": .clubActivities
+        case "club-reflection": .clubReflections
+        case "school-arrangement": .schoolArrangements
+        case "lunch-menu": .lunchMenu
+        case "map": .map
+        case "help": .help
+        default: nil
         }
     }
 }
 
-// Add an initializer to create from navigation link
+/// Add an initializer to create from navigation link
 extension ViewType {
     init?(fromLink link: String) {
         switch link {

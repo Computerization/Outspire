@@ -59,7 +59,7 @@ class LunchMenuViewModel: ObservableObject {
         request.timeoutInterval = 15
 
         currentTask = URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
-            guard let self = self else { return }
+            guard let self else { return }
 
             DispatchQueue.main.async {
                 self.isLoading = false
@@ -69,7 +69,7 @@ class LunchMenuViewModel: ObservableObject {
                     return
                 }
 
-                guard let data = data, let htmlString = String(data: data, encoding: .utf8) else {
+                guard let data, let htmlString = String(data: data, encoding: .utf8) else {
                     self.errorMessage = "Failed to decode response"
                     return
                 }
@@ -136,7 +136,7 @@ class LunchMenuViewModel: ObservableObject {
         request.timeoutInterval = 15
 
         detailTask = URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
-            guard let self = self else { return }
+            guard let self else { return }
 
             if let error = error as NSError?, error.code != NSURLErrorCancelled {
                 DispatchQueue.main.async {
@@ -147,7 +147,7 @@ class LunchMenuViewModel: ObservableObject {
                 return
             }
 
-            guard let data = data, let htmlString = String(data: data, encoding: .utf8) else {
+            guard let data, let htmlString = String(data: data, encoding: .utf8) else {
                 DispatchQueue.main.async {
                     self.isLoadingDetail = false
                     print("DEBUG: Failed to decode response")
@@ -210,7 +210,7 @@ class LunchMenuViewModel: ObservableObject {
         }
     }
 
-    // Enhanced animation control method
+    /// Enhanced animation control method
     func triggerInitialAnimation(isSmallScreen: Bool = UIDevice.isSmallScreen) {
         if AnimationManager.shared.hasAnimated(viewId: animationViewId) {
             if isSmallScreen {
@@ -365,13 +365,13 @@ class LunchMenuViewModel: ObservableObject {
                     }
                 }
 
-                if imgUrl == nil && img.hasAttr("fileid") {
+                if imgUrl == nil, img.hasAttr("fileid") {
                     if let fileId = try? img.attr("fileid"), !fileId.isEmpty {
                         imgUrl = "/oss/\(fileId)"
                     }
                 }
 
-                if let imgUrl = imgUrl {
+                if let imgUrl {
                     let absoluteUrl = imgUrl.hasPrefix("http") ? imgUrl : "\(baseURL)\(imgUrl)"
 
                     if !processedImageUrls.contains(absoluteUrl) {
@@ -390,7 +390,7 @@ class LunchMenuViewModel: ObservableObject {
                     for match in matches {
                         if let range = Range(match.range(at: 1), in: content) {
                             let imgUrl = String(content[range])
-                            if imgUrl.contains("/oss/") && !imgUrl.contains(".gif") {
+                            if imgUrl.contains("/oss/"), !imgUrl.contains(".gif") {
                                 let absoluteUrl = imgUrl.hasPrefix("http") ? imgUrl : "\(baseURL)\(imgUrl)"
                                 if !processedImageUrls.contains(absoluteUrl) {
                                     imageUrls.append(absoluteUrl)
@@ -486,15 +486,15 @@ class LunchMenuViewModel: ObservableObject {
         let session = URLSession(configuration: sessionConfig)
 
         let task = session.dataTask(with: url) { [weak self] data, _, error in
-            guard let self = self else { return }
+            guard let self else { return }
 
             var newDownloadedImages = downloadedImages
             var newFailedUrls = failedUrls
 
-            if let error = error {
+            if let error {
                 print("DEBUG: Error downloading image \(currentIndex + 1): \(error.localizedDescription)")
                 newFailedUrls.append(urlString)
-            } else if let data = data, let image = UIImage(data: data) {
+            } else if let data, let image = UIImage(data: data) {
                 print("DEBUG: Successfully downloaded image \(currentIndex + 1) - size: \(data.count) bytes")
                 newDownloadedImages.append(image)
             } else {
@@ -523,7 +523,7 @@ class LunchMenuViewModel: ObservableObject {
             .replacingOccurrences(of: "\"", with: "")
             .replacingOccurrences(of: "'", with: "")
 
-        if !cleaned.hasPrefix("http") && !cleaned.hasPrefix("/") {
+        if !cleaned.hasPrefix("http"), !cleaned.hasPrefix("/") {
             cleaned = "/\(cleaned)"
         }
 
@@ -605,7 +605,7 @@ class LunchMenuViewModel: ObservableObject {
     }
 
     private func cleanupTemporaryFiles() {
-        if let pdfURL = pdfURL {
+        if let pdfURL {
             do {
                 try FileManager.default.removeItem(at: pdfURL)
             } catch {

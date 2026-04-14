@@ -1,6 +1,6 @@
 import Foundation
 
-// Minimal user model inferred from the new server's /Home/Login response
+/// Minimal user model inferred from the new server's /Home/Login response
 struct V2User: Codable {
     let userId: Int?
     let userCode: String?

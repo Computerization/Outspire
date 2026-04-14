@@ -15,14 +15,14 @@ struct ScheduleRow: View {
         self.isSelfStudy = isSelfStudy
     }
 
-    // Get dynamic color based on subject or self-study status
+    /// Get dynamic color based on subject or self-study status
     private var periodColor: Color {
         if isSelfStudy {
-            return .purple
+            .purple
         } else if !subject.isEmpty {
-            return ModernScheduleRow.subjectColor(for: subject)
+            ModernScheduleRow.subjectColor(for: subject)
         } else {
-            return .blue
+            .blue
         }
     }
 

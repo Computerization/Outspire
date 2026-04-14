@@ -3,7 +3,7 @@ import SwiftUI
 #if !targetEnvironment(macCatalyst)
     import ColorfulX
 
-    // Extension to convert ColorfulPreset to SwiftUI Color array
+    /// Extension to convert ColorfulPreset to SwiftUI Color array
     extension ColorfulPreset {
         var swiftUIColors: [Color] {
             colors.map { Color(uiColor: $0) }
@@ -11,9 +11,9 @@ import SwiftUI
     }
 #endif
 
-// Extension to add these presets to ColorfulX
+/// Extension to add these presets to ColorfulX
 extension Color {
-    // Safely adjust color brightness
+    /// Safely adjust color brightness
     func adjustBrightness(by amount: CGFloat) -> Color {
         let uiColor = UIColor(self)
         var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
@@ -26,7 +26,7 @@ extension Color {
         return Color(UIColor(hue: h, saturation: s, brightness: newBrightness, alpha: a))
     }
 
-    // Blend two colors for better readability
+    /// Blend two colors for better readability
     func blended(with color: Color, ratio: CGFloat = 0.5) -> Color {
         let uiColor1 = UIColor(self)
         let uiColor2 = UIColor(color)
@@ -47,8 +47,8 @@ extension Color {
     }
 }
 
-// Helper extension to ensure gradient colors are properly applied
-extension Array where Element == Color {
+/// Helper extension to ensure gradient colors are properly applied
+extension [Color] {
     func withOpacity(_ opacity: Double) -> [Color] {
         map { $0.opacity(opacity) }
     }

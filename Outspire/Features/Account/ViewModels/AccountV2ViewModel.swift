@@ -40,7 +40,7 @@ class AccountV2ViewModel: ObservableObject {
         successMessage = nil
 
         AuthServiceV2.shared.login(code: code, password: password) { [weak self] success, message in
-            guard let self = self else { return }
+            guard let self else { return }
             self.isLoggingIn = false
             if success {
                 // Persist last used code for convenience

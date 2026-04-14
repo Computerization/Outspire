@@ -34,7 +34,8 @@ struct SettingsGeneralView: View {
                     Configuration.hideAcademicScore = newValue
                     let toast = ToastValue(
                         icon: Image(systemName: "person.fill.checkmark").foregroundStyle(
-                            .secondary),
+                            .secondary
+                        ),
                         message: "Settings Saved"
                     )
                     presentToast(toast)
@@ -104,7 +105,8 @@ struct SettingsGeneralView: View {
                 if showCacheCleared {
                     let toast = ToastValue(
                         icon: Image(systemName: "externaldrive.badge.checkmark").foregroundStyle(
-                            .secondary),
+                            .secondary
+                        ),
                         message: "Cache Cleared"
                     )
                     presentToast(toast)

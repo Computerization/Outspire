@@ -22,16 +22,39 @@ struct TodayView: View {
 
     // MARK: - Convenience accessors for VM-owned settings
 
-    private var selectedDayOverride: Int? { classtableViewModel.selectedDayOverride }
-    private var setAsToday: Bool { classtableViewModel.setAsToday }
-    private var isHolidayMode: Bool { classtableViewModel.isHolidayMode }
-    private var holidayHasEndDate: Bool { classtableViewModel.holidayHasEndDate }
-    private var holidayEndDate: Date { classtableViewModel.holidayEndDate }
-    private var currentTime: Date { classtableViewModel.currentTime }
-    private var effectiveDayIndex: Int { classtableViewModel.effectiveDayIndex }
+    private var selectedDayOverride: Int? {
+        classtableViewModel.selectedDayOverride
+    }
+
+    private var setAsToday: Bool {
+        classtableViewModel.setAsToday
+    }
+
+    private var isHolidayMode: Bool {
+        classtableViewModel.isHolidayMode
+    }
+
+    private var holidayHasEndDate: Bool {
+        classtableViewModel.holidayHasEndDate
+    }
+
+    private var holidayEndDate: Date {
+        classtableViewModel.holidayEndDate
+    }
+
+    private var currentTime: Date {
+        classtableViewModel.currentTime
+    }
+
+    private var effectiveDayIndex: Int {
+        classtableViewModel.effectiveDayIndex
+    }
+
     private var upcomingClassInfo:
         (period: ClassPeriod, classData: String, dayIndex: Int, isForToday: Bool)?
-    { classtableViewModel.upcomingClassInfo }
+    {
+        classtableViewModel.upcomingClassInfo
+    }
 
     // MARK: - Body
 
@@ -290,7 +313,7 @@ struct TodayView: View {
         if dayIndex == 0 {
             return "7:45 - 8:05"
         } // Monday
-        else if dayIndex >= 1 && dayIndex <= 4 {
+        else if dayIndex >= 1, dayIndex <= 4 {
             return "7:55 - 8:05"
         } // Tues - Fri
         else {
@@ -303,7 +326,7 @@ struct TodayView: View {
         if dayIndex == 0 {
             return "before 7:45"
         } // Monday
-        else if dayIndex >= 1 && dayIndex <= 4 {
+        else if dayIndex >= 1, dayIndex <= 4 {
             return "before 7:55"
         } // Tues - Fri
         else {
@@ -358,7 +381,7 @@ struct TodayView: View {
         AnimationManager.shared.markAppLaunched()
     }
 
-    // Check if we need to reset the selected day override
+    /// Check if we need to reset the selected day override
     private func checkForDateChange() {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())

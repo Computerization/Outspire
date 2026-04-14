@@ -10,12 +10,12 @@ class NotificationManager: ObservableObject {
 
     private init() {}
 
-    // Request notification permissions
+    /// Request notification permissions
     func requestAuthorization(completion: @escaping (Bool) -> Void) {
         notificationCenter.requestAuthorization(options: [.alert, .sound, .badge]) {
             granted, error in
             DispatchQueue.main.async {
-                if let error = error {
+                if let error {
                     print("Notification authorization request error: \(error.localizedDescription)")
                     completion(false)
                     return
@@ -25,7 +25,7 @@ class NotificationManager: ObservableObject {
         }
     }
 
-    // Check notification permission status
+    /// Check notification permission status
     func checkAuthorizationStatus(completion: @escaping (UNAuthorizationStatus) -> Void) {
         notificationCenter.getNotificationSettings { settings in
             DispatchQueue.main.async {
@@ -34,17 +34,17 @@ class NotificationManager: ObservableObject {
         }
     }
 
-    // Register notification categories with actions
+    /// Register notification categories with actions
     func registerNotificationCategories() {
         notificationCenter.setNotificationCategories([])
     }
 
-    // Cancel all notifications
+    /// Cancel all notifications
     func cancelAllNotifications() {
         notificationCenter.removeAllPendingNotificationRequests()
     }
 
-    // Remove all pending notifications
+    /// Remove all pending notifications
     func removeAllPendingNotifications() {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }

@@ -9,7 +9,9 @@ struct UnifiedScheduleCard: View {
 
     @Environment(\.colorScheme) private var colorScheme
 
-    private var dayWeekday: Int { dayIndex + 2 }
+    private var dayWeekday: Int {
+        dayIndex + 2
+    }
 
     private var maxPeriodsForDay: Int {
         ClassPeriodsManager.shared.getMaxPeriodsByWeekday(dayWeekday)

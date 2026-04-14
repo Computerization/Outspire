@@ -4,7 +4,7 @@ import SwiftSoup
 struct V2Group: Decodable { let Id: Int; let Name: String }
 struct V2GroupAlt: Decodable { let GroupNo: String; let NameC: String?; let NameE: String? }
 
-// Flexible record decoding to accommodate alternate server field names
+/// Flexible record decoding to accommodate alternate server field names
 struct V2Record: Decodable, Identifiable {
     let Id: Int
     let GroupId: Int?
@@ -17,7 +17,7 @@ struct V2Record: Decodable, Identifiable {
     let SDuration: String?
     let Reflection: String?
 
-    // Convenience total hours if present
+    /// Convenience total hours if present
     let Hours: Double?
 
     // Confirmation status
@@ -39,7 +39,7 @@ struct V2Record: Decodable, Identifiable {
         if let d = try? c.decode(String.self, forKey: .Date) { Date = d }
         else { Date = (try? c.decode(String.self, forKey: .ActivityDateStr)) ?? "" }
 
-        // Read raw durations as strings (supports string or number types)
+        /// Read raw durations as strings (supports string or number types)
         func decodeDuration(_ key: CodingKeys) -> String? {
             if let s = try? c.decodeIfPresent(String.self, forKey: key) { return s }
             if let d = try? c.decodeIfPresent(Double.self, forKey: key) {
@@ -71,7 +71,9 @@ struct V2Record: Decodable, Identifiable {
         IsConfirmStr = try? c.decodeIfPresent(String.self, forKey: .IsConfirmStr)
     }
 
-    var id: Int { Id }
+    var id: Int {
+        Id
+    }
 }
 
 final class CASServiceV2 {
@@ -101,7 +103,7 @@ final class CASServiceV2 {
     }
 
     func getCachedGroupDetails(idOrNo: String) -> V2GroupListItem? {
-        return groupDetailsCache[idOrNo]
+        groupDetailsCache[idOrNo]
     }
 
     func fetchGroupList(
@@ -321,7 +323,9 @@ final class CASServiceV2 {
 
         if matchedSectionCount == 0 {
             struct GroupDetailParseError: LocalizedError {
-                var errorDescription: String? { "Unable to locate member sections in group detail page" }
+                var errorDescription: String? {
+                    "Unable to locate member sections in group detail page"
+                }
             }
             throw GroupDetailParseError()
         }
@@ -387,7 +391,9 @@ final class CASServiceV2 {
         let Summary: String?
         let Content: String?
         let CreateTime: String?
-        var id: Int { Id }
+        var id: Int {
+            Id
+        }
     }
 
     func fetchReflections(

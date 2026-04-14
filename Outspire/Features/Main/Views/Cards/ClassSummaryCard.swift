@@ -8,10 +8,17 @@ struct ClassSummaryCard: View {
 
     @Environment(\.colorScheme) private var colorScheme
 
-    private var classInfo: ClassInfo { ClassInfoParser.parse(classData) }
-    private var isCurrentClass: Bool { isForToday && period.isCurrentlyActive() }
+    private var classInfo: ClassInfo {
+        ClassInfoParser.parse(classData)
+    }
 
-    private var titleText: String { isCurrentClass ? "Current Class" : "Upcoming Class" }
+    private var isCurrentClass: Bool {
+        isForToday && period.isCurrentlyActive()
+    }
+
+    private var titleText: String {
+        isCurrentClass ? "Current Class" : "Upcoming Class"
+    }
 
     private var statusBackgroundColor: Color {
         colorScheme == .dark ? Color.black.opacity(0.3) : Color.secondary.opacity(0.12)

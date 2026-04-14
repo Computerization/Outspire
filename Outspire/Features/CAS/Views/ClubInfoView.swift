@@ -26,7 +26,7 @@ struct ClubInfoView: View {
 
                     errorMessageView
 
-                    if viewModel.isLoading && (viewModel.groupInfo == nil || !viewModel.refreshing) {
+                    if viewModel.isLoading, viewModel.groupInfo == nil || !viewModel.refreshing {
                         loadingSection
                     } else if let groupInfo = viewModel.groupInfo {
                         clubInfoSection(groupInfo: groupInfo)
@@ -136,11 +136,13 @@ struct ClubInfoView: View {
                                     Label {
                                         Text(
                                             viewModel.isUserMember
-                                                ? "Already a member of the Club" : "Join Club")
+                                                ? "Already a member of the Club" : "Join Club"
+                                        )
                                     } icon: {
                                         Image(
                                             systemName: viewModel.isUserMember
-                                                ? "checkmark" : "plus")
+                                                ? "checkmark" : "plus"
+                                        )
                                         //                                        .symbolRenderingMode(.hierarchical)
                                         //                                        .foregroundStyle(viewModel.isUserMember
                                         //                                        ? .green : .cyan)
@@ -493,10 +495,10 @@ struct ClubInfoView: View {
 
     private var emptyStateSection: some View {
         Group {
-            if viewModel.categories.isEmpty && !viewModel.isLoading {
+            if viewModel.categories.isEmpty, !viewModel.isLoading {
                 emptyCategoriesView
-            } else if viewModel.groups.isEmpty && viewModel.selectedCategory != nil
-                && !viewModel.isLoading
+            } else if viewModel.groups.isEmpty, viewModel.selectedCategory != nil,
+                      !viewModel.isLoading
             {
                 emptyGroupsView
             }
@@ -747,7 +749,7 @@ struct ClubInfoView: View {
         }
     }
 
-    // Add a new helper method to handle sharing
+    /// Add a new helper method to handle sharing
     private func shareClub(groupInfo: GroupInfo) {
         // Create a universal link for better compatibility
         let universalLinkString = "https://outspire.wrye.dev/app/club/\(groupInfo.C_GroupsID)"
@@ -776,7 +778,7 @@ struct ClubInfoView: View {
         }
     }
 
-    // Add method to update gradient for club info
+    /// Add method to update gradient for club info
     private func updateGradientForClubInfo() {
         #if !targetEnvironment(macCatalyst)
             gradientManager.updateGradientForView(.clubInfo, colorScheme: colorScheme)
@@ -943,7 +945,7 @@ struct MembersListView: View {
     }
 }
 
-// New component to simplify the complex member row
+/// New component to simplify the complex member row
 struct MemberRow: View {
     let member: Member
     let isCurrentUser: Bool
@@ -971,7 +973,7 @@ struct MemberRow: View {
     }
 }
 
-// Further break down member info component
+/// Further break down member info component
 struct MemberInfo: View {
     let member: Member
     let isCurrentUser: Bool
@@ -1008,7 +1010,7 @@ struct MemberInfo: View {
     }
 }
 
-// Small components to further simplify
+/// Small components to further simplify
 struct UserBadge: View {
     var body: some View {
         Text("You")
@@ -1039,7 +1041,7 @@ struct LeadershipBadge: View {
     }
 }
 
-// Club skeleton view
+/// Club skeleton view
 struct ClubSkeletonView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {

@@ -6,10 +6,12 @@ struct Term: Identifiable, Codable {
     let W_Year: String
     let W_Term: String
 
-    var id: String { W_YearID }
+    var id: String {
+        W_YearID
+    }
 
     var displayName: String {
-        return "\(W_Year) Term \(W_Term)"
+        "\(W_Year) Term \(W_Term)"
     }
 }
 
@@ -28,9 +30,14 @@ struct Score: Identifiable, Codable {
     let Score5: String
     let LScore5: String
 
-    var id: String { IB_SubjectID }
+    var id: String {
+        IB_SubjectID
+    }
 
-    var subjectName: String { IB_SubjectE }
+    var subjectName: String {
+        IB_SubjectE
+    }
+
     var examScores: [ExamScore] {
         [
             ExamScore(name: "Monthly 1", score: Score1, level: LScore1),
@@ -59,8 +66,13 @@ struct ExamScore: Identifiable {
     let score: String
     let level: String
 
-    var id: String { name }
-    var hasScore: Bool { score != "0" && !score.isEmpty }
+    var id: String {
+        name
+    }
+
+    var hasScore: Bool {
+        score != "0" && !score.isEmpty
+    }
 }
 
 class ScoreViewModel: ObservableObject {
@@ -74,7 +86,7 @@ class ScoreViewModel: ObservableObject {
     @Published var lastUpdateTime: Date = .init()
     @Published var formattedLastUpdateTime: String = ""
 
-    // Track terms with available data
+    /// Track terms with available data
     @Published var termsWithData: Set<String> = []
 
     private let cacheDuration: TimeInterval = 300
@@ -162,8 +174,8 @@ class ScoreViewModel: ObservableObject {
 
             // Load cached timestamp
             if let cachedTimestamp = UserDefaults.standard.object(
-                forKey: "scoresCacheTimestamp-\(termId)") as? TimeInterval
-            {
+                forKey: "scoresCacheTimestamp-\(termId)"
+            ) as? TimeInterval {
                 self.lastUpdateTime = Date(timeIntervalSince1970: cachedTimestamp)
             } else {
                 self.lastUpdateTime = Date()
@@ -241,7 +253,7 @@ class ScoreViewModel: ObservableObject {
 
             context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) {
                 [weak self] success, authenticationError in
-                guard let self = self else { return }
+                guard let self else { return }
 
                 // Small delay before updating UI to ensure smooth transitions
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -283,7 +295,7 @@ class ScoreViewModel: ObservableObject {
         errorMessage = nil
 
         TimetableServiceV2.shared.fetchYearOptions { [weak self] result in
-            guard let self = self else { return }
+            guard let self else { return }
             DispatchQueue.main.async {
                 self.isLoadingTerms = false
                 switch result {
@@ -316,7 +328,7 @@ class ScoreViewModel: ObservableObject {
         errorMessage = nil
 
         ScoreServiceV2.shared.fetchScores(yearId: selectedTermId) { [weak self] result in
-            guard let self = self else { return }
+            guard let self else { return }
             DispatchQueue.main.async {
                 self.isLoading = false
                 switch result {
@@ -354,7 +366,7 @@ class ScoreViewModel: ObservableObject {
         }
     }
 
-    // Helper function to determine appropriate message for empty terms
+    /// Helper function to determine appropriate message for empty terms
     private func determineEmptyScoreMessage(for termId: String) {
         // Find the term object to get more context
         guard let term = terms.first(where: { $0.W_YearID == termId }) else {
@@ -408,7 +420,7 @@ class ScoreViewModel: ObservableObject {
         fetchTerms(forceRefresh: true)
     }
 
-    // Method to explicitly select the most recent term
+    /// Method to explicitly select the most recent term
     func selectMostRecentTerm() {
         if let mostRecentTerm = findMostRecentTerm(from: terms) {
             // Only change if we're not already on the most recent term

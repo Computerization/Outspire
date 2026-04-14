@@ -6,10 +6,10 @@ class AnimationManager {
 
     private init() {}
 
-    // Tracking app launch state
+    /// Tracking app launch state
     private(set) var isFirstLaunch = !UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
 
-    // Dictionary to track animation states for different views
+    /// Dictionary to track animation states for different views
     private var animatedViews = Set<String>()
 
     func markAppLaunched() {
@@ -26,23 +26,23 @@ class AnimationManager {
         UserDefaults.standard.set(false, forKey: "hasLaunchedBefore")
     }
 
-    // Track if a specific view has been animated
+    /// Track if a specific view has been animated
     func hasAnimated(viewId: String) -> Bool {
-        return animatedViews.contains(viewId)
+        animatedViews.contains(viewId)
     }
 
-    // Mark a specific view as animated
+    /// Mark a specific view as animated
     func markAnimated(viewId: String) {
         animatedViews.insert(viewId)
     }
 
-    // Force a view to animate again
+    /// Force a view to animate again
     func resetAnimation(viewId: String) {
         animatedViews.remove(viewId)
     }
 }
 
-// Extension to help determine device characteristics
+/// Extension to help determine device characteristics
 extension UIDevice {
     static var isSmallScreen: Bool {
         let screenSize = UIScreen.main.bounds.size
@@ -51,6 +51,6 @@ extension UIDevice {
     }
 
     static var isIpad: Bool {
-        return UIDevice.current.userInterfaceIdiom == .pad
+        UIDevice.current.userInterfaceIdiom == .pad
     }
 }

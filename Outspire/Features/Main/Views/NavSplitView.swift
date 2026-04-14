@@ -83,7 +83,7 @@ struct NavSplitView: View {
         }
         .searchable(text: $splitSearch, prompt: "Search")
         .onChange(of: Configuration.hideAcademicScore) { _, newValue in
-            if newValue && selectedView == .score { selectedView = .today }
+            if newValue, selectedView == .score { selectedView = .today }
             refreshID = UUID()
         }
         // Add URL scheme handling changes
@@ -209,9 +209,9 @@ struct NavSplitView: View {
         return lastVersion.compare(thresholdVersion, options: .numeric) == .orderedAscending
     }
 
-    // Update the method to update gradient based on selected view
+    /// Update the method to update gradient based on selected view
     private func updateGradient(for view: ViewType?) {
-        guard let view = view else {
+        guard let view else {
             // Default to today view gradient
             gradientManager.updateGradientForView(.today, colorScheme: colorScheme)
             return

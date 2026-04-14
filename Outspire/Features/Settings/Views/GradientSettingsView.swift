@@ -17,23 +17,25 @@ struct GradientSettingsView: View {
         @State private var selectedPreset: GradientPreset = .forest
     #endif
 
-    // Track if user has customized settings
+    /// Track if user has customized settings
     @State private var hasCustomized: Bool = false
 
-    // Define the available gradient presets
+    /// Define the available gradient presets
     enum GradientPreset: String, CaseIterable, Identifiable {
         #if !targetEnvironment(macCatalyst)
             // Added all ColorfulPreset options
             case sunrise, sunset, love, ocean, barbie, starry, jelly
             case lavandula, watermelon, dandelion, lemon
             case spring, summer, autumn, winter, neon, aurora
-            // Custom color schemes
+            /// Custom color schemes
             case forest, lavender, cherry
         #else
             case forest, lavender, cherry
         #endif
 
-        var id: String { self.rawValue }
+        var id: String {
+            self.rawValue
+        }
 
         var colors: [Color] {
             switch self {
@@ -172,7 +174,7 @@ struct GradientSettingsView: View {
         }
     }
 
-    // Preview of the current gradient
+    /// Preview of the current gradient
     private var gradientPreview: some View {
         ZStack {
             #if !targetEnvironment(macCatalyst)
@@ -210,7 +212,7 @@ struct GradientSettingsView: View {
         .padding(.vertical, 8)
     }
 
-    // Load current settings from the gradient manager
+    /// Load current settings from the gradient manager
     private func loadCurrentSettings() {
         // Load customization status
         hasCustomized = UserDefaults.standard.bool(forKey: "hasCustomizedGradients")
@@ -231,7 +233,7 @@ struct GradientSettingsView: View {
         #endif
     }
 
-    // Find which preset matches a set of colors
+    /// Find which preset matches a set of colors
     private func findMatchingPreset(for colors: [Color]) -> GradientPreset? {
         // Simple implementation - just check if the arrays have the same count
         // and if each color is approximately the same
@@ -245,7 +247,7 @@ struct GradientSettingsView: View {
         return nil
     }
 
-    // Update the gradient based on selected preset
+    /// Update the gradient based on selected preset
     private func updateGradient(preset: GradientPreset) {
         // Update global settings
         gradientManager.updateGlobalGradient(
@@ -257,7 +259,7 @@ struct GradientSettingsView: View {
         saveCustomSettings()
     }
 
-    // Update just the animation settings
+    /// Update just the animation settings
     private func updateGradientAnimation() {
         // Update global settings
         gradientManager.updateGlobalGradient(
@@ -268,7 +270,7 @@ struct GradientSettingsView: View {
         saveCustomSettings()
     }
 
-    // Reset all settings
+    /// Reset all settings
     private func resetAllSettings() {
         // Reset all settings
         gradientManager.resetAllSettings()
@@ -281,7 +283,7 @@ struct GradientSettingsView: View {
         saveCustomSettings()
     }
 
-    // Save custom settings to UserDefaults
+    /// Save custom settings to UserDefaults
     private func saveCustomSettings() {
         UserDefaults.standard.set(true, forKey: "hasCustomizedGradients")
     }

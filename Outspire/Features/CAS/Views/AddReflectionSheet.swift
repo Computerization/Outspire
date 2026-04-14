@@ -130,7 +130,7 @@ struct AddReflectionSheet: View {
             }
             .navigationTitle("New Reflection")
             .onChange(of: viewModel.errorMessage) { _, errorMessage in
-                if let errorMessage = errorMessage {
+                if let errorMessage {
                     let toast = ToastValue(
                         icon: Image(systemName: "exclamationmark.triangle").foregroundStyle(.red),
                         message: errorMessage

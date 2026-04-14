@@ -3,7 +3,7 @@ import Foundation
 
 @MainActor
 class RegionChecker: ObservableObject {
-    // Add a shared singleton instance
+    /// Add a shared singleton instance
     static let shared = RegionChecker()
 
     @Published var regionCode: String?
@@ -11,7 +11,7 @@ class RegionChecker: ObservableObject {
     @Published var isCheckingRegion = false
     @Published var isCheckComplete: Bool = false
 
-    // Make init private to enforce singleton pattern
+    /// Make init private to enforce singleton pattern
     private init() {
         // Run the Taiwan check on initialization
         checkTaipeiRepresentation()
@@ -30,7 +30,7 @@ class RegionChecker: ObservableObject {
 
     func isChinaRegion() -> Bool {
         // Use the Taiwan check as the primary determinant
-        return isTaipeiInChina
+        isTaipeiInChina
     }
 
     func fetchRegionCode() {
@@ -41,7 +41,7 @@ class RegionChecker: ObservableObject {
         }
 
         URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
-            if let data = data,
+            if let data,
                let code = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
             {
                 DispatchQueue.main.async {
@@ -65,7 +65,7 @@ class RegionChecker: ObservableObject {
         let location = CLLocation(latitude: taipeiLocation.latitude, longitude: taipeiLocation.longitude)
 
         geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, error in
-            guard let self = self else { return }
+            guard let self else { return }
 
             if let placemark = placemarks?.first {
                 // Check how MapKit represents Taipei's country
@@ -78,7 +78,7 @@ class RegionChecker: ObservableObject {
                         print("Taipei is shown as part of: \(country) (\(countryCode))")
                     }
                 }
-            } else if let error = error {
+            } else if let error {
                 print("Geocoding error: \(error.localizedDescription)")
                 DispatchQueue.main.async {
                     self.isCheckComplete = true

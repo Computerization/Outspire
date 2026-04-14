@@ -5,10 +5,12 @@ struct Category: Decodable, Identifiable, Hashable {
     let C_CategoryID: String
     let C_Category: String
 
-    var id: String { C_CategoryID }
+    var id: String {
+        C_CategoryID
+    }
 
     static func == (lhs: Category, rhs: Category) -> Bool {
-        return lhs.C_CategoryID == rhs.C_CategoryID
+        lhs.C_CategoryID == rhs.C_CategoryID
     }
 
     func hash(into hasher: inout Hasher) {
@@ -42,7 +44,9 @@ struct Member: Decodable, Identifiable {
     let LeaderYes: String
     let C_Secede: String?
 
-    var id: String { StudentID }
+    var id: String {
+        StudentID
+    }
 }
 
 struct NoGroup: Codable, Identifiable, Hashable {
@@ -51,10 +55,12 @@ struct NoGroup: Codable, Identifiable, Hashable {
     let C_NameC: String
     let C_NameE: String
 
-    var id: String { C_GroupsID }
+    var id: String {
+        C_GroupsID
+    }
 
     static func == (lhs: NoGroup, rhs: NoGroup) -> Bool {
-        return lhs.C_GroupsID == rhs.C_GroupsID
+        lhs.C_GroupsID == rhs.C_GroupsID
     }
 
     func hash(into hasher: inout Hasher) {
@@ -73,10 +79,12 @@ struct ClubGroup: Codable, Identifiable, Hashable {
     let C_NameC: String
     let C_NameE: String
 
-    var id: String { C_GroupsID }
+    var id: String {
+        C_GroupsID
+    }
 
     static func == (lhs: ClubGroup, rhs: ClubGroup) -> Bool {
-        return lhs.C_GroupsID == rhs.C_GroupsID
+        lhs.C_GroupsID == rhs.C_GroupsID
     }
 
     func hash(into hasher: inout Hasher) {
@@ -89,7 +97,9 @@ struct ActivityResponse: Decodable {
 }
 
 struct ActivityRecord: Codable, Identifiable {
-    var id: String { C_ARecordID } // Conform to Identifiable for List
+    var id: String {
+        C_ARecordID
+    } // Conform to Identifiable for List
     var C_ARecordID: String
     var C_Theme: String
     var C_Date: String
@@ -102,7 +112,10 @@ struct ActivityRecord: Codable, Identifiable {
 }
 
 struct Reflection: Codable, Identifiable {
-    var id: String { C_RefID }
+    var id: String {
+        C_RefID
+    }
+
     let C_RefID: String
     let C_Title: String
     let C_Summary: String

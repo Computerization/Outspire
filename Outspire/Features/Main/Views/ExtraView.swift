@@ -133,5 +133,7 @@ struct ExtraView: View {
 
 private enum ExploreTarget: String, Identifiable, Hashable {
     case today, classes, activities, grades
-    var id: String { rawValue }
+    var id: String {
+        rawValue
+    }
 }

@@ -37,7 +37,7 @@ class AddRecordViewModel: ObservableObject {
     private static var cachedFormData: FormCache?
     private var cancellables = Set<AnyCancellable>()
 
-    // Store form data for persistent recovery
+    /// Store form data for persistent recovery
     struct FormCache {
         let groupId: String
         let date: Date
@@ -52,7 +52,7 @@ class AddRecordViewModel: ObservableObject {
         durationC + durationA + durationS
     }
 
-    // Calculate word count for the description (TSIMS requires words)
+    /// Calculate word count for the description (TSIMS requires words)
     var descriptionWordCount: Int {
         activityDescription.split(whereSeparator: { $0.isWhitespace }).count
     }
@@ -193,7 +193,7 @@ class AddRecordViewModel: ObservableObject {
         }
     }
 
-    // Cache current form data automatically
+    /// Cache current form data automatically
     func cacheFormData() {
         // Only cache if there's meaningful data
         if !activityTitle.isEmpty || !activityDescription.isEmpty || totalDuration > 0 {
@@ -209,12 +209,12 @@ class AddRecordViewModel: ObservableObject {
         }
     }
 
-    // Clear the cache after successful submission
+    /// Clear the cache after successful submission
     func clearCache() {
         AddRecordViewModel.cachedFormData = nil
     }
 
-    // Clear all form fields and cache
+    /// Clear all form fields and cache
     func clearForm() {
         selectedGroupId = availableGroups.first?.C_GroupsID ?? ""
         activityDate = Date()
@@ -265,7 +265,7 @@ class AddRecordViewModel: ObservableObject {
                 ApiResponse<String>,
                 NetworkError
             >) in
-                guard let self = self else { return }
+                guard let self else { return }
                 switch result {
                 case let .success(env):
                     if env.isSuccess {

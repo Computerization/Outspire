@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-// Timetable item shape (simple form)
+/// Timetable item shape (simple form)
 struct V2TimetableItem: Codable {
     let day: String
     let period: Int
@@ -22,12 +22,12 @@ struct V2TimetableItem: Codable {
     }
 }
 
-// Alternate timetable payload observed in HAR: Data contains WeekList and TimetableList
+/// Alternate timetable payload observed in HAR: Data contains WeekList and TimetableList
 struct V2TimetableAltResponse: Codable {
     struct LessonSlot: Codable {
-        // Some pages provide LessonNumber as string; not strictly required for mapping
+        /// Some pages provide LessonNumber as string; not strictly required for mapping
         let LessonNumber: String?
-        // TimetableList arrays may include null entries for days without classes
+        /// TimetableList arrays may include null entries for days without classes
         let TimetableList: [LessonItem?]
     }
 
@@ -49,7 +49,7 @@ final class TimetableServiceV2 {
     static let shared = TimetableServiceV2()
     private init() {}
 
-    // Scrape /Stu/Timetable/Index for <select id="YearId"> options
+    /// Scrape /Stu/Timetable/Index for <select id="YearId"> options
     func fetchYearOptions(completion: @escaping (Result<[YearOption], NetworkError>) -> Void) {
         let path = "/Stu/Timetable/Index"
         // Fetch as HTML using a simple GET
@@ -70,8 +70,8 @@ final class TimetableServiceV2 {
                 if Configuration.debugNetworkLogging, let http = response as? HTTPURLResponse {
                     print("[TimetableV2] GET /Stu/Timetable/Index status=\(http.statusCode)")
                 }
-                if let error = error { completion(.failure(.requestFailed(error))); return }
-                guard let data = data, let html = String(data: data, encoding: .utf8) else {
+                if let error { completion(.failure(.requestFailed(error))); return }
+                guard let data, let html = String(data: data, encoding: .utf8) else {
                     completion(.failure(.noData)); return
                 }
                 // If got redirected to Login page, signal unauthorized
@@ -104,7 +104,7 @@ final class TimetableServiceV2 {
         }.resume()
     }
 
-    // Fetch timetable JSON and return raw items
+    /// Fetch timetable JSON and return raw items
     func fetchTimetable(
         yearId: String,
         studentId: String? = nil,

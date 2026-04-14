@@ -8,7 +8,7 @@ struct LunchMenuItem: Identifiable, Equatable {
     var isExpanded: Bool = false
 
     static func == (lhs: LunchMenuItem, rhs: LunchMenuItem) -> Bool {
-        return lhs.id == rhs.id
+        lhs.id == rhs.id
     }
 }
 
@@ -20,7 +20,7 @@ struct LunchMenuDetail: Identifiable, Equatable {
     let content: String
 
     static func == (lhs: LunchMenuDetail, rhs: LunchMenuDetail) -> Bool {
-        return lhs.id == rhs.id
+        lhs.id == rhs.id
     }
 }
 

@@ -17,7 +17,7 @@ import SwiftUI
         static let weekend = ColorfulPreset.sunrise.swiftUIColors
         static let holiday = ColorfulPreset.autumn.swiftUIColors
 
-        // Default fallback gradient
+        /// Default fallback gradient
         static let defaultGradient = ColorfulPreset.aurora.swiftUIColors
     }
 #else

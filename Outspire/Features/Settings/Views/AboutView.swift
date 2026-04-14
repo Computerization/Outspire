@@ -146,7 +146,7 @@ struct AboutView: View {
     }
 }
 
-// Helper to get app icon
+/// Helper to get app icon
 extension Bundle {
     var icon: UIImage? {
         if let icons = infoDictionary?["CFBundleIcons"] as? [String: Any],

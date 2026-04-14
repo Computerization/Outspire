@@ -25,7 +25,7 @@ struct UnifiedPDFPreview: View {
     }
 }
 
-// QuickLook preview with customization to hide the duplicate navigation bar
+/// QuickLook preview with customization to hide the duplicate navigation bar
 struct QuickLookPreviewWithCustomization: UIViewControllerRepresentable {
     let url: URL
     let title: String
@@ -61,22 +61,22 @@ struct QuickLookPreviewWithCustomization: UIViewControllerRepresentable {
         }
 
         func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
-            return 1
+            1
         }
 
         func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
-            return parent.url as NSURL
+            parent.url as NSURL
         }
 
-        // Remove the document title from QuickLook
+        /// Remove the document title from QuickLook
         func previewController(
             _ controller: QLPreviewController,
             editingModeFor previewItem: QLPreviewItem
         ) -> QLPreviewItemEditingMode {
-            return .disabled
+            .disabled
         }
 
-        // Handle any additional customization needed when the preview loads
+        /// Handle any additional customization needed when the preview loads
         func previewControllerDidStartPreview(_ controller: QLPreviewController) {
             // Remove any toolbar items from the QuickLook controller's view
             if let customController = controller as? CustomQLPreviewController {
@@ -86,7 +86,7 @@ struct QuickLookPreviewWithCustomization: UIViewControllerRepresentable {
     }
 }
 
-// Custom QLPreviewController to hide only the top title bar while preserving the bottom toolbar
+/// Custom QLPreviewController to hide only the top title bar while preserving the bottom toolbar
 class CustomQLPreviewController: QLPreviewController {
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -104,7 +104,7 @@ class CustomQLPreviewController: QLPreviewController {
         }
     }
 
-    // Selectively hide only the top title bar
+    /// Selectively hide only the top title bar
     func hideTopTitleBar() {
         // Find the navigation bar in the view hierarchy that's showing the document title
         findAndHideTopNavigationBar(in: self.view)

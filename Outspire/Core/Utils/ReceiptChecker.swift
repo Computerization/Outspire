@@ -16,7 +16,7 @@ enum ReceiptChecker {
     }
 
     private static var hasEmbeddedProvision: Bool {
-        return Bundle.main.path(forResource: "embedded", ofType: "mobileprovision") != nil
+        Bundle.main.path(forResource: "embedded", ofType: "mobileprovision") != nil
     }
 
     private static var isSandboxReceipt: Bool {
@@ -25,10 +25,10 @@ enum ReceiptChecker {
     }
 
     static var isTestFlight: Bool {
-        return isSandboxReceipt && !hasEmbeddedProvision
+        isSandboxReceipt && !hasEmbeddedProvision
     }
 
     static var isAppStore: Bool {
-        return !isSimulator && !isSandboxReceipt && !hasEmbeddedProvision
+        !isSimulator && !isSandboxReceipt && !hasEmbeddedProvision
     }
 }

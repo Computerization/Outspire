@@ -3,7 +3,7 @@ import SwiftUI
     import ColorfulX
 #endif
 
-// Structure to hold view-specific gradient settings
+/// Structure to hold view-specific gradient settings
 struct ViewGradientSettings: Codable {
     var colors: [String] // Store colors as strings for Codable support
     var speed: Double
@@ -21,7 +21,7 @@ struct ViewGradientSettings: Codable {
         self.transitionSpeed = transitionSpeed
     }
 
-    // Get actual SwiftUI colors
+    /// Get actual SwiftUI colors
     var swiftUIColors: [Color] {
         colors.compactMap { hexString in
             Color(UIColor(hex: hexString) ?? .clear)
@@ -55,16 +55,16 @@ class GradientManager: ObservableObject {
         noise: Double? = nil,
         transitionSpeed: Double? = nil
     ) {
-        if let colors = colors {
+        if let colors {
             gradientColors = colors
         }
-        if let speed = speed {
+        if let speed {
             gradientSpeed = speed
         }
-        if let noise = noise {
+        if let noise {
             gradientNoise = noise
         }
-        if let transitionSpeed = transitionSpeed {
+        if let transitionSpeed {
             gradientTransitionSpeed = transitionSpeed
         }
 
@@ -90,7 +90,7 @@ class GradientManager: ObservableObject {
                 transitionSpeed: gradientTransitionSpeed
             )
         } else {
-            if let colors = colors {
+            if let colors {
                 globalSettings = ViewGradientSettings(
                     colors: colors,
                     speed: speed ?? globalSettings!.speed,
@@ -125,7 +125,7 @@ class GradientManager: ObservableObject {
     ) {
         // If we already have settings for this view, update them
         if var settings = viewSettings[viewType] {
-            if let colors = colors {
+            if let colors {
                 settings = ViewGradientSettings(
                     colors: colors,
                     speed: speed ?? settings.speed,
@@ -165,7 +165,7 @@ class GradientManager: ObservableObject {
     }
 
     func applyGlobalSettings() {
-        guard let globalSettings = globalSettings else { return }
+        guard let globalSettings else { return }
 
         // Update all view settings with global settings
         for viewType in ViewType.allCases {
@@ -187,7 +187,7 @@ class GradientManager: ObservableObject {
     func getSettingsForView(_ viewType: ViewType)
         -> (colors: [Color], speed: Double, noise: Double, transitionSpeed: Double)
     {
-        if useGlobalSettings, let globalSettings = globalSettings {
+        if useGlobalSettings, let globalSettings {
             return (
                 globalSettings.swiftUIColors,
                 globalSettings.speed,
@@ -258,19 +258,19 @@ class GradientManager: ObservableObject {
 
     private func getDefaultColorsForViewType(_ viewType: ViewType) -> [Color] {
         switch viewType {
-        case .today: return AppGradients.defaultGradient
-        case .classtable: return AppGradients.inClass
-        case .score: return AppGradients.afterSchool
-        case .clubInfo: return AppGradients.holiday
-        case .clubActivities: return AppGradients.weekend
-        case .schoolArrangements: return AppGradients.holiday
-        case .clubReflections: return AppGradients.afterSchool
-        case .lunchMenu: return AppGradients.afterSchool
-        case .map: return AppGradients.defaultGradient
-        case .notSignedIn: return AppGradients.notSignedIn
-        case .weekend: return AppGradients.weekend
-        case .holiday: return AppGradients.holiday
-        case .help: return AppGradients.defaultGradient
+        case .today: AppGradients.defaultGradient
+        case .classtable: AppGradients.inClass
+        case .score: AppGradients.afterSchool
+        case .clubInfo: AppGradients.holiday
+        case .clubActivities: AppGradients.weekend
+        case .schoolArrangements: AppGradients.holiday
+        case .clubReflections: AppGradients.afterSchool
+        case .lunchMenu: AppGradients.afterSchool
+        case .map: AppGradients.defaultGradient
+        case .notSignedIn: AppGradients.notSignedIn
+        case .weekend: AppGradients.weekend
+        case .holiday: AppGradients.holiday
+        case .help: AppGradients.defaultGradient
         }
     }
 
@@ -306,7 +306,7 @@ class GradientManager: ObservableObject {
         }
 
         // Set initial displayed gradient
-        if useGlobalSettings, let globalSettings = globalSettings {
+        if useGlobalSettings, let globalSettings {
             gradientColors = globalSettings.swiftUIColors
             gradientSpeed = globalSettings.speed
             gradientNoise = globalSettings.noise
@@ -331,7 +331,7 @@ class GradientManager: ObservableObject {
 
     private func saveViewSettings() {
         // Save global settings
-        if let globalSettings = globalSettings,
+        if let globalSettings,
            let encodedGlobal = try? JSONEncoder().encode(globalSettings)
         {
             UserDefaults.standard.set(encodedGlobal, forKey: "globalGradientSettings")
@@ -449,8 +449,8 @@ class GradientManager: ObservableObject {
     }
 
     func getBaseSettings() -> (colors: [Color], speed: Double, noise: Double, transitionSpeed: Double) {
-        if useGlobalSettings, let globalSettings = globalSettings {
-            return (
+        if useGlobalSettings, let globalSettings {
+            (
                 globalSettings.swiftUIColors,
                 globalSettings.speed,
                 globalSettings.noise,
@@ -458,7 +458,7 @@ class GradientManager: ObservableObject {
             )
         } else {
             // Use default animation settings
-            return (AppGradients.defaultGradient, 0.5, 20.0, 1.0)
+            (AppGradients.defaultGradient, 0.5, 20.0, 1.0)
         }
     }
 }
@@ -485,16 +485,14 @@ extension GradientManager {
         colorScheme: ColorScheme
     ) {
         // Determine which view type to use based on context
-        let viewType: ViewType
-
-        if isHolidayMode {
-            viewType = .holiday
+        let viewType: ViewType = if isHolidayMode {
+            .holiday
         } else if isWeekend {
-            viewType = .weekend
+            .weekend
         } else if !isAuthenticated {
-            viewType = .notSignedIn
+            .notSignedIn
         } else {
-            viewType = .today
+            .today
         }
 
         // Get settings for this view type
@@ -545,7 +543,7 @@ extension GradientManager {
     }
 }
 
-// Enum to track various gradient contexts for consistency
+/// Enum to track various gradient contexts for consistency
 enum GradientContext: Equatable {
     case normal
     case notSignedIn
@@ -557,29 +555,29 @@ enum GradientContext: Equatable {
     case inSelfStudy
     case upcomingSelfStudy
 
-    // Check if this is a special context that should override regular view settings
+    /// Check if this is a special context that should override regular view settings
     var isSpecialContext: Bool {
         switch self {
         case .normal:
-            return false
+            false
         case .notSignedIn, .weekend, .holiday, .afterSchool,
              .inClass, .upcomingClass, .inSelfStudy, .upcomingSelfStudy:
-            return true
+            true
         }
     }
 
-    // Check if this is an active context (like being in class)
+    /// Check if this is an active context (like being in class)
     var isActive: Bool {
         switch self {
         case .inClass, .inSelfStudy:
-            return true
+            true
         default:
-            return false
+            false
         }
     }
 }
 
-// Add extension method to UIColor for hex string conversion
+/// Add extension method to UIColor for hex string conversion
 extension UIColor {
     convenience init?(hex: String) {
         var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)

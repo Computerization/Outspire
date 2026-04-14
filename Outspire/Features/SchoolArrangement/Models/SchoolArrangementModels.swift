@@ -10,7 +10,7 @@ struct SchoolArrangementItem: Identifiable, Equatable {
     var isExpanded: Bool = false
 
     static func == (lhs: SchoolArrangementItem, rhs: SchoolArrangementItem) -> Bool {
-        return lhs.id == rhs.id
+        lhs.id == rhs.id
     }
 }
 
@@ -22,11 +22,11 @@ struct SchoolArrangementDetail: Identifiable, Equatable {
     let content: String
 
     static func == (lhs: SchoolArrangementDetail, rhs: SchoolArrangementDetail) -> Bool {
-        return lhs.id == rhs.id
+        lhs.id == rhs.id
     }
 }
 
-// Helper struct for grouping arrangements
+/// Helper struct for grouping arrangements
 struct ArrangementGroup: Identifiable {
     let id: String
     let title: String
@@ -34,7 +34,7 @@ struct ArrangementGroup: Identifiable {
     var isExpanded: Bool = true
 }
 
-// Enhanced cache manager for image caching with better memory management
+/// Enhanced cache manager for image caching with better memory management
 class ImageCache {
     static let shared = ImageCache()
     private var cache = NSCache<NSString, NSData>()
@@ -65,7 +65,7 @@ class ImageCache {
     }
 
     func getImage(for url: String) -> Data? {
-        return cache.object(forKey: url as NSString) as Data?
+        cache.object(forKey: url as NSString) as Data?
     }
 
     func loadImageAsync(url: URL, completion: @escaping (Data?) -> Void) {
@@ -85,13 +85,13 @@ class ImageCache {
 
         // Create a new loading task
         let task = URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
-            guard let self = self else { return }
+            guard let self else { return }
 
             self.taskLock.lock()
             self.inProgressTasks[url.absoluteString] = nil
             self.taskLock.unlock()
 
-            if let data = data, error == nil {
+            if let data, error == nil {
                 self.setImage(data: data, for: url.absoluteString)
                 DispatchQueue.main.async {
                     completion(data)
@@ -128,7 +128,7 @@ class ImageCache {
     }
 }
 
-// Improved URL validation helper
+/// Improved URL validation helper
 private func isValidURL(_ urlString: String) -> Bool {
     guard let url = URL(string: urlString) else { return false }
     return UIApplication.shared.canOpenURL(url)

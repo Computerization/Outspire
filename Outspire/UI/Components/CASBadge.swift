@@ -7,9 +7,9 @@ enum CASType: String {
 
     var color: Color {
         switch self {
-        case .creativity: return .red
-        case .activity: return .mint
-        case .service: return .indigo
+        case .creativity: .red
+        case .activity: .mint
+        case .service: .indigo
         }
     }
 }

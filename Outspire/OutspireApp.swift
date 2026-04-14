@@ -4,7 +4,7 @@ import Toasts
 import UIKit
 import UserNotifications
 
-// Create an environment object to manage settings state globally
+/// Create an environment object to manage settings state globally
 @MainActor
 class SettingsManager: ObservableObject {
     @Published var showSettingsSheet = false
@@ -15,27 +15,27 @@ struct OutspireApp: App {
     @StateObject private var regionChecker = RegionChecker.shared
     @StateObject private var notificationManager = NotificationManager.shared
 
-    // Add settings manager
+    /// Add settings manager
     @StateObject private var settingsManager = SettingsManager()
 
-    // Add gradient manager
+    /// Add gradient manager
     @StateObject private var gradientManager = GradientManager()
 
-    // Shared classtable view model
+    /// Shared classtable view model
     @StateObject private var classtableViewModel = ClasstableViewModel()
 
-    // Add connectivity manager
+    /// Add connectivity manager
     @StateObject private var connectivityManager = ConnectivityManager.shared
 
     @UIApplicationDelegateAdaptor(OutspireAppDelegate.self) var appDelegate
 
-    // Add URL scheme handler
+    /// Add URL scheme handler
     @StateObject private var urlSchemeHandler = URLSchemeHandler.shared
 
-    // Add scene phase detection
+    /// Add scene phase detection
     @Environment(\.scenePhase) private var scenePhase
 
-    // Add NSUserActivity property to handle universal links
+    /// Add NSUserActivity property to handle universal links
     @State private var userActivity = NSUserActivity(activityType: NSUserActivityTypeBrowsingWeb)
 
     init() {}
@@ -115,7 +115,7 @@ struct OutspireApp: App {
         #endif
     }
 
-    // Handle incoming URL schemes
+    /// Handle incoming URL schemes
     private func handleIncomingURL(_ url: URL) {
         // Signal that sheets should be closed
         urlSchemeHandler.closeAllSheets = true
@@ -153,7 +153,7 @@ struct OutspireApp: App {
         }
     }
 
-    // Update the method to share club to include universal links
+    /// Update the method to share club to include universal links
     private func shareClub(groupInfo: GroupInfo) {
         // Create both URLs for better sharing compatibility
         _ = "outspire://club/\(groupInfo.C_GroupsID)"
@@ -205,11 +205,11 @@ class OutspireAppDelegate: NSObject, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {}
 
-    // Handle URL scheme when app is launched from a URL
+    /// Handle URL scheme when app is launched from a URL
     func application(
         _ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]
     ) -> Bool {
-        return URLSchemeHandler.shared.handleURL(url)
+        URLSchemeHandler.shared.handleURL(url)
     }
 }
 

@@ -23,43 +23,43 @@ private struct DisplayState {
 private func stateColor(for state: DisplayState) -> Color {
     switch state.phase {
     case .ongoing:
-        return SubjectColors.color(for: state.title)
+        SubjectColors.color(for: state.title)
     case .ending:
-        return .orange
+        .orange
     case .upcoming:
-        return .green
+        .green
     case .breakTime:
-        return SubjectColors.color(for: state.nextTitle ?? state.title)
+        SubjectColors.color(for: state.nextTitle ?? state.title)
     case .event:
-        return .purple
+        .purple
     case .done:
-        return .white.opacity(0.4)
+        .white.opacity(0.4)
     }
 }
 
 private func countdownLabel(for phase: ClassActivityAttributes.ContentState.Phase) -> String {
     switch phase {
     case .ongoing, .ending:
-        return "ENDS IN"
+        "ENDS IN"
     case .upcoming, .breakTime:
-        return "STARTS IN"
+        "STARTS IN"
     case .event:
-        return "TODAY"
+        "TODAY"
     case .done:
-        return "DONE"
+        "DONE"
     }
 }
 
 private func countdownColor(for state: DisplayState) -> Color {
     switch state.phase {
     case .ongoing:
-        return .white
+        .white
     case .ending:
-        return .orange
+        .orange
     case .upcoming, .breakTime, .event:
-        return .white.opacity(0.4)
+        .white.opacity(0.4)
     case .done:
-        return .white.opacity(0.45)
+        .white.opacity(0.45)
     }
 }
 
@@ -290,9 +290,9 @@ struct OutspireWidgetLiveActivity: Widget {
 private func dynamicIslandSubtitle(for state: DisplayState) -> String {
     switch state.phase {
     case .breakTime, .done:
-        return ""
+        ""
     default:
-        return state.subtitle
+        state.subtitle
     }
 }
 

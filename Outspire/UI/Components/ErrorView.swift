@@ -21,7 +21,7 @@ struct ErrorView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
-            if let retryAction = retryAction {
+            if let retryAction {
                 Button(action: {
                     HapticManager.shared.playButtonTap()
                     retryAction()

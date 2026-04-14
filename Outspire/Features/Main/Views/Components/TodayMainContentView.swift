@@ -28,8 +28,8 @@ struct TodayMainContentView: View {
         }
     }
 
-    private func animatedCard<Content: View>(
-        delay: Double, @ViewBuilder content: @escaping () -> Content
+    private func animatedCard(
+        delay: Double, @ViewBuilder content: @escaping () -> some View
     ) -> some View {
         content()
             .padding(.horizontal)
@@ -47,7 +47,6 @@ struct TodayMainContentView: View {
         return "schedule-\(effectiveDayIndex)"
     }
 
-    @ViewBuilder
     private var authenticatedContent: some View {
         VStack(spacing: AppSpace.lg) {
             // Main content area with smooth transitions
@@ -100,13 +99,12 @@ struct TodayMainContentView: View {
         }
     }
 
-    @ViewBuilder
     private var notAuthenticatedContent: some View {
         SignInPromptCard()
             .padding(.horizontal)
     }
 
-    // Method to check if all classes for today are over
+    /// Method to check if all classes for today are over
     private func areClassesOverForToday() -> Bool {
         // Only check this for weekdays
         guard !isCurrentDateWeekend, !isHolidayActive, effectiveDayIndex >= 0,
@@ -127,7 +125,7 @@ struct TodayMainContentView: View {
             if effectiveDayIndex + 1 < timetable[min(lastClassPeriod, timetable.count - 1)].count {
                 // Check if we have any scheduled classes
                 let classes = getScheduledClassesForDay(effectiveDayIndex)
-                if !classes.isEmpty, let lastPeriodNumber = classes.map({ $0.0 }).max(),
+                if !classes.isEmpty, let lastPeriodNumber = classes.map(\.0).max(),
                    let lastPeriod = ClassPeriodsManager.shared.classPeriods.first(where: {
                        $0.number == lastPeriodNumber
                    })
@@ -141,7 +139,7 @@ struct TodayMainContentView: View {
         return false
     }
 
-    // Helper to get scheduled classes for a day
+    /// Helper to get scheduled classes for a day
     private func getScheduledClassesForDay(_ dayIndex: Int) -> [(Int, String)] {
         var classes: [(Int, String)] = []
         guard !classtableViewModel.timetable.isEmpty, dayIndex >= 0, dayIndex < 5 else {

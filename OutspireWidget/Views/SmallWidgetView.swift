@@ -173,10 +173,9 @@ struct SmallWidgetView: View {
         }
     }
 
-    @ViewBuilder
-    private func widgetCard<Content: View, Background: View>(
-        @ViewBuilder background: () -> Background,
-        @ViewBuilder content: () -> Content
+    private func widgetCard(
+        @ViewBuilder background: () -> some View,
+        @ViewBuilder content: () -> some View
     ) -> some View {
         content()
             .containerBackground(for: .widget) {

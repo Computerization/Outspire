@@ -24,7 +24,7 @@ struct LearningOutcomeExplanationRow: View {
     }
 }
 
-// Preview
+/// Preview
 struct LearningOutcomeExplanationRow_Previews: PreviewProvider {
     static var previews: some View {
         LearningOutcomeExplanationRow(

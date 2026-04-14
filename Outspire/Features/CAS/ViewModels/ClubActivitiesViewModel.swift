@@ -172,7 +172,7 @@ class ClubActivitiesViewModel: ObservableObject {
         }
     }
 
-    // Map GroupNo -> numeric Id using cached group list; prime cache if needed
+    /// Map GroupNo -> numeric Id using cached group list; prime cache if needed
     private func resolveNumericGroupId(_ idOrNo: String, completion: @escaping (String) -> Void) {
         guard !idOrNo.isEmpty else { completion(""); return }
         if let detail = CASServiceV2.shared.getCachedGroupDetails(idOrNo: idOrNo), let nid = detail.Id {
@@ -238,7 +238,7 @@ class ClubActivitiesViewModel: ObservableObject {
 
     // MARK: - Copy Functions
 
-    // showTemporaryMessage duplicate in ClubActivitiesView
+    /// showTemporaryMessage duplicate in ClubActivitiesView
     func copyTitle(_ activity: ActivityRecord) {
         HapticManager.shared.playFeedback(.light)
         UIPasteboard.general.string = activity.C_Theme
