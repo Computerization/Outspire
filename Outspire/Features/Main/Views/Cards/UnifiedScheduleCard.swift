@@ -8,10 +8,9 @@ struct UnifiedScheduleCard: View {
     let effectiveDate: Date?
 
     @Environment(\.colorScheme) private var colorScheme
+    @State private var isExpanded = false
 
-    private var dayWeekday: Int {
-        dayIndex + 2
-    }
+    private var dayWeekday: Int { dayIndex + 2 }
 
     private var maxPeriodsForDay: Int {
         ClassPeriodsManager.shared.getMaxPeriodsByWeekday(dayWeekday)
@@ -54,6 +53,25 @@ struct UnifiedScheduleCard: View {
         return .blue
     }
 
+    private var hasLunchDivider: Bool {
+        scheduledPeriods.contains { $0.periodNumber == 4 } && scheduledPeriods.contains { $0.periodNumber == 5 }
+    }
+
+    private func isLunchDivider(after periodNumber: Int) -> Bool {
+        periodNumber == 4 && hasLunchDivider
+    }
+
+    private var displayedPeriods: [SchedulePeriodItem] {
+        if isExpanded || scheduledPeriods.count <= 5 {
+            return scheduledPeriods
+        }
+        return Array(scheduledPeriods.prefix(5))
+    }
+
+    private var collapsedHeight: CGFloat {
+        CGFloat(5 * 56)
+    }
+
     var body: some View {
         if scheduledPeriods.isEmpty {
             NoClassCard()
@@ -79,7 +97,7 @@ struct UnifiedScheduleCard: View {
                 Spacer()
             }
             .padding(.horizontal, 22)
-            .padding(.vertical, 20)
+            .padding(.vertical, 16)
             .overlay(alignment: .trailing) {
                 Text("\(scheduledPeriods.count)")
                     .font(.system(size: 120, weight: .black, design: .rounded))
@@ -103,25 +121,109 @@ struct UnifiedScheduleCard: View {
                 }
             )
 
-            // Period rows on subtly tinted surface
-            TimelineView(.periodic(from: .now, by: 1)) { context in
-                VStack(spacing: 0) {
-                    ForEach(scheduledPeriods) { item in
-                        let isActive = (isForToday || setAsToday)
-                            && isItemActive(item, at: context.date)
-                        let isPast = (isForToday || setAsToday)
-                            && isItemPast(item, at: context.date) && !isActive
+            // Period rows - show all or fade based on state
+            if scheduledPeriods.count > 5 && !isExpanded {
+                // Collapsed: show 3 items with fade hint
+                TimelineView(.periodic(from: .now, by: 1)) { context in
+                    VStack(spacing: 0) {
+                        ForEach(displayedPeriods) { item in
+                            let isActive = (isForToday || setAsToday)
+                                && isItemActive(item, at: context.date)
+                            let isPast = (isForToday || setAsToday)
+                                && isItemPast(item, at: context.date) && !isActive
 
-                        UnifiedScheduleRow(
-                            item: item,
-                            isActive: isActive,
-                            isPast: isPast,
-                            currentDate: context.date,
-                            accentColor: accentColor
-                        )
+                            UnifiedScheduleRow(
+                                item: item,
+                                isActive: isActive,
+                                isPast: isPast,
+                                currentDate: context.date,
+                                accentColor: accentColor
+                            )
+
+if isLunchDivider(after: item.periodNumber) {
+                                Capsule()
+                                    .fill(Color.accentColor.opacity(0.15))
+                                    .frame(width: 114, height: 2)
+                            }
+                        }
                     }
+                    .padding(.vertical, 8)
                 }
-                .padding(.vertical, 8)
+                .frame(maxHeight: collapsedHeight)
+                .mask(
+                    VStack(spacing: 0) {
+                        Rectangle()
+                        .frame(height: collapsedHeight - 40)
+                        LinearGradient(
+                            colors: [.white, .clear],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .frame(height: 40)
+                    }
+                )
+
+                Button {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        isExpanded.toggle()
+                    }
+                } label: {
+                    Label("Show more", systemImage: "chevron.down")
+                        .font(.subheadline.weight(.medium))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.accentColor.opacity(0.1))
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, 8)
+            } else {
+                // Expanded or <=3 items: show all
+                TimelineView(.periodic(from: .now, by: 1)) { context in
+                   VStack(spacing: 0) {
+                        ForEach(scheduledPeriods) { item in
+                            let isActive = (isForToday || setAsToday)
+                                && isItemActive(item, at: context.date)
+                            let isPast = (isForToday || setAsToday)
+                                && isItemPast(item, at: context.date) && !isActive
+
+                            UnifiedScheduleRow(
+                                item: item,
+                                isActive: isActive,
+                                isPast: isPast,
+                                currentDate: context.date,
+                                accentColor: accentColor
+                            )
+
+if isLunchDivider(after: item.periodNumber) {
+                                Capsule()
+                                    .fill(Color.accentColor.opacity(0.15))
+                                    .frame(height: 2)
+                                    .frame(width: 114, alignment: .leading)
+                            }
+                        }
+                    }
+                    .padding(.vertical, 8)
+                }
+
+                if scheduledPeriods.count > 5 {
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            isExpanded.toggle()
+                        }
+                    } label: {
+                        Label("Show less", systemImage: "chevron.up")
+                            .font(.subheadline.weight(.medium))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.accentColor.opacity(0.1))
+                            .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom, 12)
+                }
             }
         }
         .background(
@@ -255,16 +357,16 @@ private struct UnifiedScheduleRow: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            // Colored dot indicator
+            // Dot: show for non-self-study, invisible placeholder for self-study
             Circle()
-                .fill(subjectColor)
+                .fill(item.info.isSelfStudy ? Color.clear : subjectColor)
                 .frame(width: 6, height: 6)
 
             VStack(alignment: .leading, spacing: isActive ? 6 : 3) {
                 // Subject name
                 Text(item.info.subject ?? (item.info.isSelfStudy ? "Self-Study" : "Class"))
                     .font(isActive ? .body.weight(.bold) : .subheadline.weight(.semibold))
-                    .foregroundColor(isPast ? .secondary : (item.info.isSelfStudy ? .purple : .primary))
+                    .foregroundColor(isPast ? .secondary : .primary)
 
                 // Metadata line
                 Text(item.info.isSelfStudy && !isActive ? timeRange : metadataLine)
