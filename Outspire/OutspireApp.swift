@@ -42,7 +42,7 @@ struct OutspireApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootTabView()
+            SplashView() // <--- Updated: Set SplashView as the initial entry point
                 .tint(AppColor.brand)
                 .environmentObject(regionChecker)
                 .environmentObject(notificationManager)
